@@ -1,6 +1,5 @@
 {
     "name": "skeeks/cms",
-    "version": "5.2.8.2",
     "description": "SkeekS CMS — control panel and tools based on php framework Yii2",
     "keywords": ["framework", "cms", "skeeks", "sx", "skeeks cms", "app", "yii2", "extension"],
     "homepage": "https://cms.skeeks.com",
