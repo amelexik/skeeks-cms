@@ -5,7 +5,7 @@ use yii\db\Migration;
 /**
 * Class m190121_123232_cms_content_add_model_class
 */
-class m190121_123232_cms_content_add_model_class extends console\components\Migration
+class m190121_123232_cms_content_add_model_class extends Migration
 {
     const  nameTable = '{{cms_content}}';
 
