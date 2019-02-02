@@ -52,7 +52,7 @@ $search->getDataProvider()->query->andWhere(['active' => \skeeks\cms\components\
         [
             'class' => \yii\grid\DataColumn::className(),
             'value' => function(\skeeks\cms\models\CmsSite $model, $key, $index) {
-                return \yii\helpers\Html::a('<i class="glyphicon glyphicon-cog"></i>',
+                return \yii\helpers\Html::a('<i class="fa fa-cog"></i>',
                     \skeeks\cms\helpers\UrlHelper::constructCurrent()->setRoute('cms/admin-component-settings/site')->set('site_id',
                         $model->id)->toString(),
                     [

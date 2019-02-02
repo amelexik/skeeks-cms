@@ -26,7 +26,6 @@ use skeeks\cms\models\CmsContentElement;
 use skeeks\cms\models\CmsContentElementProperty;
 use skeeks\cms\modules\admin\actions\AdminAction;
 use skeeks\cms\modules\admin\actions\modelEditor\AdminModelEditorAction;
-use skeeks\cms\modules\admin\actions\modelEditor\AdminMultiDialogModelEditAction;
 use skeeks\cms\modules\admin\widgets\GridViewStandart;
 use skeeks\cms\queryfilters\filters\modes\FilterModeEq;
 use skeeks\cms\queryfilters\QueryFiltersEvent;
@@ -75,18 +74,19 @@ class AdminCmsContentElementController extends BackendModelStandartController
     {
         $result = ArrayHelper::merge(parent::actions(), [
             'index'            => [
-                'configKey'      => $this->uniqueId."-". ($this->content ? $this->content->id : ""),
+                'configKey'      => $this->uniqueId."-".($this->content ? $this->content->id : ""),
                 'on afterRender' => [$this, 'contentEdit'],
                 //'url' => [$this->uniqueId, 'content_id' => $this->content->id],
                 'on init'        => function ($e) {
+                    $action = $e->sender;
+                    /**
+                     * @var $action BackendGridModelAction
+                     */
                     if ($this->content) {
-                        $action = $e->sender;
-                        /**
-                         * @var $action BackendGridModelAction
-                         */
-                        $action->url = ["/" . $action->uniqueId, 'content_id' => $this->content->id];
+                        $action->url = ["/".$action->uniqueId, 'content_id' => $this->content->id];
                         $this->initGridData($action, $this->content);
                     }
+
                 },
 
                 "filters" => [
@@ -352,27 +352,27 @@ class AdminCmsContentElementController extends BackendModelStandartController
                 "callback" => [$this, 'update'],
             ],
             "activate-multi"   => [
-                'class' => BackendModelMultiActivateAction::class,
-                'on init'        => function ($e) {
-                    if($this->content) {
-                        $action = $e->sender;
-                        /**
-                         * @var BackendGridModelAction $action
-                         */
-                        $action->url = ["/" . $action->uniqueId, 'content_id' => $this->content->id];
+                'class'   => BackendModelMultiActivateAction::class,
+                'on init' => function ($e) {
+                    $action = $e->sender;
+                    /**
+                     * @var BackendGridModelAction $action
+                     */
+                    if ($this->content) {
+                        $action->url = ["/".$action->uniqueId, 'content_id' => $this->content->id];
                     }
                 },
 
             ],
             "deactivate-multi" => [
-                'class' => BackendModelMultiDeactivateAction::class,
-                'on init'        => function ($e) {
-                    if($this->content) {
-                        $action = $e->sender;
-                        /**
-                         * @var BackendGridModelAction $action
-                         */
-                        $action->url = ["/" . $action->uniqueId, 'content_id' => $this->content->id];
+                'class'   => BackendModelMultiDeactivateAction::class,
+                'on init' => function ($e) {
+                    $action = $e->sender;
+                    /**
+                     * @var BackendGridModelAction $action
+                     */
+                    if ($this->content) {
+                        $action->url = ["/".$action->uniqueId, 'content_id' => $this->content->id];
                     }
                 },
 
@@ -435,14 +435,16 @@ class AdminCmsContentElementController extends BackendModelStandartController
                 "name"         => \Yii::t('skeeks/cms', 'The main section'),
                 "viewDialog"   => "@skeeks/cms/views/admin-cms-content-element/change-tree-form",
                 "eachCallback" => [$this, 'eachMultiChangeTree'],
-                'on init'        => function ($e) {
-                    if($this->content) {
-                        $action = $e->sender;
-                        /**
-                         * @var BackendGridModelAction $action
-                         */
-                        $action->url = ["/" . $action->uniqueId, 'content_id' => $this->content->id];
+                'on init'      => function ($e) {
+                    /**
+                     * @var BackendGridModelAction $action
+                     */
+                    $action = $e->sender;
+                    if ($this->content) {
+                        $action->url = ["/".$action->uniqueId, 'content_id' => $this->content->id];
                     }
+
+
                 },
             ],
 
@@ -451,13 +453,13 @@ class AdminCmsContentElementController extends BackendModelStandartController
                 "name"         => \Yii::t('skeeks/cms', 'Related topics'),
                 "viewDialog"   => "@skeeks/cms/views/admin-cms-content-element/change-trees-form",
                 "eachCallback" => [$this, 'eachMultiChangeTrees'],
-                'on init'        => function ($e) {
-                    if($this->content) {
-                        $action = $e->sender;
-                        /**
-                         * @var BackendGridModelAction $action
-                         */
-                        $action->url = ["/" . $action->uniqueId, 'content_id' => $this->content->id];
+                'on init'      => function ($e) {
+                    $action = $e->sender;
+                    /**
+                     * @var BackendGridModelAction $action
+                     */
+                    if ($this->content) {
+                        $action->url = ["/".$action->uniqueId, 'content_id' => $this->content->id];
                     }
                 },
             ],
@@ -467,13 +469,13 @@ class AdminCmsContentElementController extends BackendModelStandartController
                 "name"         => \Yii::t('skeeks/cms', 'Properties'),
                 "viewDialog"   => "@skeeks/cms/views/admin-cms-content-element/multi-rp",
                 "eachCallback" => [$this, 'eachRelatedProperties'],
-                'on init'        => function ($e) {
-                    if($this->content) {
-                        $action = $e->sender;
-                        /**
-                         * @var BackendGridModelAction $action
-                         */
-                        $action->url = ["/" . $action->uniqueId, 'content_id' => $this->content->id];
+                'on init'      => function ($e) {
+                    $action = $e->sender;
+                    /**
+                     * @var BackendGridModelAction $action
+                     */
+                    if ($this->content) {
+                        $action->url = ["/".$action->uniqueId, 'content_id' => $this->content->id];
                     }
                 },
             ],
@@ -720,7 +722,7 @@ class AdminCmsContentElementController extends BackendModelStandartController
                 'pk' => $this->content->id,
             ])->enableAdmin()->toString());
 
-        $e->data = Alert::widget([
+        $e->content = Alert::widget([
             'options' => [
                 'class' => 'alert-info',
             ],
@@ -1061,11 +1063,6 @@ HTML
 
         return $actions;
     }
-
-
-
-
-
 
 
     /**

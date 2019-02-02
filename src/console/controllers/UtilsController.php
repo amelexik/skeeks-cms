@@ -14,10 +14,8 @@ use skeeks\cms\models\CmsContent;
 use skeeks\cms\models\CmsContentElement;
 use skeeks\cms\models\CmsContentProperty;
 use skeeks\cms\models\CmsContentProperty2content;
-use skeeks\cms\models\CmsContentPropertyEnum;
 use skeeks\cms\models\CmsSearchPhrase;
 use skeeks\cms\models\CmsTree;
-use skeeks\cms\models\CmsUserProperty;
 use skeeks\cms\models\StorageFile;
 use skeeks\sx\Dir;
 use Yii;
@@ -69,8 +67,10 @@ class UtilsController extends Controller
         /**
          * @var $files StorageFile[]
          */
+        ini_set('memory_limit', '2048M');
+
         if ($files = StorageFile::find()->count()) {
-            foreach (StorageFile::find()->orderBy(['id' => SORT_ASC])->each(10) as $file) {
+            foreach (StorageFile::find()->orderBy(['id' => SORT_ASC])->each(100) as $file) {
                 $this->stdout("{$file->id}");
                 if ($file->deleteTmpDir()) {
                     $this->stdout(" - true\n", Console::FG_GREEN);
@@ -203,55 +203,6 @@ class UtilsController extends Controller
             $this->stdout("\t{$cmsContentElement->id}: {$cmsContentElement->name}");
 
             if ($cmsContentElement->delete()) {
-                $this->stdout(" - deleted\n", Console::FG_GREEN);
-            } else {
-                $this->stdout(" - NOT deleted\n", Console::FG_RED);
-            }
-        }
-    }
-
-
-    public function actionRemoveContentPropertyEnums()
-    {
-        $query = CmsContentPropertyEnum::find();
-
-        if (!$count = $query->count()) {
-            $this->stdout("Content elements not found!\n", Console::BOLD);
-            return;
-        }
-
-        $this->stdout("1. Found elements: {$count}!\n", Console::BOLD);
-
-        foreach ($query->orderBy([
-            'id' => SORT_ASC
-        ])->each(10) as $enum) {
-            $this->stdout("\t{$enum->id}: {$enum->value}");
-
-            if ($enum->delete()) {
-                $this->stdout(" - deleted\n", Console::FG_GREEN);
-            } else {
-                $this->stdout(" - NOT deleted\n", Console::FG_RED);
-            }
-        }
-    }
-
-    public function actionRemoveUserProperty()
-    {
-        $query = CmsUserProperty::find();
-
-        if (!$count = $query->count()) {
-            $this->stdout("Content elements not found!\n", Console::BOLD);
-            return;
-        }
-
-        $this->stdout("1. Found elements: {$count}!\n", Console::BOLD);
-
-        foreach ($query->orderBy([
-            'id' => SORT_ASC
-        ])->each(10) as $enum) {
-            $this->stdout("\t{$enum->property_id}: {$enum->element_id}");
-
-            if ($enum->delete()) {
                 $this->stdout(" - deleted\n", Console::FG_GREEN);
             } else {
                 $this->stdout(" - NOT deleted\n", Console::FG_RED);
