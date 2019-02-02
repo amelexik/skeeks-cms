@@ -180,11 +180,12 @@ class Cms extends \skeeks\cms\base\Component
         }
 
         //Язык
-        if ($this->languageCode) {
-            \Yii::$app->language = $this->languageCode;
-        } else {
-            $this->languageCode = \Yii::$app->language;
-        }
+//        if ($this->languageCode) {
+//            \Yii::$app->language = $this->languageCode;
+//        } else {
+//            $this->languageCode = \Yii::$app->language;
+//        }
+        $this->languageCode = \Yii::$app->language;
 
 
         if (\Yii::$app instanceof Application) {

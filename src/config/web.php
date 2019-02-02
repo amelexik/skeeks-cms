@@ -10,10 +10,19 @@
  * @since 1.0.0
  */
 $config = [
-    'bootstrap' => ['cms'],
+    'bootstrap' => ['languageDetect','cms'],
 
     'components' => [
 
+        'languageDetect' => [
+            'class' => '\skeeks\cms\components\LanguageDetect',
+        ],
+        'request' => [
+            'class' => 'skeeks\cms\components\HttpRequest'
+        ],
+        'urlManager' => [
+            'class' => 'skeeks\cms\components\UrlManager'
+        ],
         'errorHandler' => [
             'errorAction' => 'cms/error/error',
         ],
