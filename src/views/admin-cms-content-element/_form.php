@@ -28,7 +28,24 @@ if ($model->isNewRecord) {
         <div class="row">
             <div class="col-md-12">
                 <div class="pull-right">
-                    <a href='<?= $model->url; ?>' target='_blank' class="btn btn-default btn-sm" title="<?= \Yii::t('skeeks/cms', 'Watch to site (opens new window)'); ?>"><i class="glyphicon glyphicon-arrow-right"></i></a>
+
+                    <a rel="noopener noreferrer" href=https://danilin.biz/clear-share-cache.htm' target='_blank'
+                       class="btn btn-default btn-sm">How to clear cache? <i
+                                class="glyphicon glyphicon-arrow-right"></i></a>
+
+                    <a href='https://developers.facebook.com/tools/debug/sharing/?q=<?= $model->absoluteUrl; ?>'
+                       target='_blank' class="btn btn-default btn-sm">Facebook cache <i
+                                class="glyphicon glyphicon-refresh"></i></a>
+
+                    <a href='https://cards-dev.twitter.com/validator' target='_blank' class="btn btn-default btn-sm">Twitter
+                        cache <i class="fa fa-user"></i></a>
+
+                    <a href='https://t.me/previews' target='_blank' class="btn btn-default btn-sm">Telegram cache <i
+                                class="glyphicon glyphicon-refresh"></i></a>
+
+                    <a href='<?= $model->url; ?>' target='_blank' class="btn btn-default btn-sm"
+                       title="<?= \Yii::t('skeeks/cms', 'Watch to site (opens new window)'); ?>">Watch to site <i
+                                class="glyphicon glyphicon-arrow-right"></i></a>
                 </div>
 
             </div>
@@ -140,17 +157,21 @@ JS
     'model'        => $model,
 ]); ?>
 
-<?= $this->render('_form-tags', [
+<?= $this->render('@skeeks/cms/tag/views/_form-tags', [
     'form'         => $form,
     'contentModel' => $contentModel,
     'model'        => $model,
 ]); ?>
 
-<?= $this->render('_form-mentions', [
-    'form'         => $form,
-    'contentModel' => $contentModel,
-    'model'        => $model,
-]); ?>
+
+<?php
+if (\skeeks\cms\models\CmsContent::find()->where(['in', 'id', Yii::$app->mention->relatedElementContentIds])->count())
+    echo $this->render('@skeeks/cms/mention/views/_form-mentions', [
+        'form'         => $form,
+        'contentModel' => $contentModel,
+        'model'        => $model,
+    ]);
+?>
 
 
 
@@ -160,7 +181,7 @@ JS
         <?= $form->fieldSet(\Yii::t('skeeks/cms', 'Access')); ?>
         <?= \skeeks\cms\rbac\widgets\adminPermissionForRoles\AdminPermissionForRolesWidget::widget([
             'permissionName'        => $model->permissionName,
-            'permissionDescription' => 'Доступ к этому элементу: '.$model->name,
+            'permissionDescription' => 'Доступ к этому элементу: ' . $model->name,
             'label'                 => 'Доступ к этому элементу',
         ]); ?>
         <?= $form->fieldSetEnd() ?>
@@ -191,7 +212,7 @@ JS
             : ?>
             <?= \skeeks\cms\modules\admin\widgets\RelatedModelsGrid::widget([
                 'label'       => $childContent->name,
-                'namespace'   => md5($model->className().$childContent->id),
+                'namespace'   => md5($model->className() . $childContent->id),
                 'parentModel' => $model,
                 'relation'    => [
                     'content_id'                => $childContent->id,
