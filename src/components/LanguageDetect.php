@@ -7,6 +7,7 @@
 
 namespace skeeks\cms\components;
 
+use skeeks\cms\models\CmsComponentSettings;
 use skeeks\cms\models\CmsLang;
 use skeeks\cms\models\CmsSite;
 
@@ -155,11 +156,16 @@ class LanguageDetect extends \skeeks\cms\base\Component
     {
         if (!self::$_defaultLanguage) {
 
+            // todo костыли, надо переделать
             if($defaultSite = CmsSite::find()->active()->andWhere(['def' => Cms::BOOL_Y])->one()){
-                $siteSettings = \skeeks\cms\models\CmsComponentSettings::find()
+                if(!$siteSettings = \skeeks\cms\models\CmsComponentSettings::find()
                     ->where(['component' => Cms::className()])
                     ->andWhere(['cms_site_id' => (int)$defaultSite->id])
-                    ->one();
+                    ->one()){
+                    $siteSettings = \skeeks\cms\models\CmsComponentSettings::find()
+                        ->where(['component' => Cms::className()])
+                        ->one();
+                }
                 if ($siteSettings && isset($siteSettings->value['languageCode'])) {
                     if($code = $siteSettings->value['languageCode']){
                         self::$_defaultLanguage = $code;
