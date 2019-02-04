@@ -7,11 +7,11 @@
 
 namespace skeeks\cms\components;
 
-use skeeks\cms\models\CmsComponentSettings;
 use skeeks\cms\models\CmsLang;
 use skeeks\cms\models\CmsSite;
+use yii\base\Component;
 
-class LanguageDetect extends \skeeks\cms\base\Component
+class LanguageDetect extends Component
 {
 
     public function init()
@@ -53,7 +53,7 @@ class LanguageDetect extends \skeeks\cms\base\Component
                         ->andWhere(['cms_site_id' => (int)$cmsSite->id])
                         ->one();
                     if ($siteSettings && isset($siteSettings->value['languageCode'])) {
-                        if($code = $siteSettings->value['languageCode']){
+                        if ($code = $siteSettings->value['languageCode']) {
                             self::$_languageSites[$code][] = $cmsSite;
                         }
                     }
@@ -66,12 +66,13 @@ class LanguageDetect extends \skeeks\cms\base\Component
     }
 
     static $_sitesLanguages;
+
     public static function getSitesLanguage()
     {
         if (!self::$_sitesLanguages) {
             if ($lngSts = self::getLanguageSites()) {
-                foreach ($lngSts as $code => $sites){
-                    if(isset($sites[0])){
+                foreach ($lngSts as $code => $sites) {
+                    if (isset($sites[0])) {
                         self::$_sitesLanguages[$sites[0]->id] = $code;
                     }
                 }
@@ -80,7 +81,6 @@ class LanguageDetect extends \skeeks\cms\base\Component
         return self::$_sitesLanguages;
 
     }
-
 
 
     public static function detectLang()
@@ -102,7 +102,7 @@ class LanguageDetect extends \skeeks\cms\base\Component
 
             if ($requestedLangCode) {
                 \Yii::$app->language = $requestedLangCode;
-                if(isset(self::$locales[$requestedLangCode]))
+                if (isset(self::$locales[$requestedLangCode]))
                     \Yii::$app->formatter->locale = self::$locales[$requestedLangCode];
                 \Yii::$app->cms->languageCode = $requestedLangCode;
                 \Yii::$app->formatter->locale = 'uk_UA';
@@ -157,17 +157,17 @@ class LanguageDetect extends \skeeks\cms\base\Component
         if (!self::$_defaultLanguage) {
 
             // todo костыли, надо переделать
-            if($defaultSite = CmsSite::find()->active()->andWhere(['def' => Cms::BOOL_Y])->one()){
-                if(!$siteSettings = \skeeks\cms\models\CmsComponentSettings::find()
+            if ($defaultSite = CmsSite::find()->active()->andWhere(['def' => Cms::BOOL_Y])->one()) {
+                if (!$siteSettings = \skeeks\cms\models\CmsComponentSettings::find()
                     ->where(['component' => Cms::className()])
                     ->andWhere(['cms_site_id' => (int)$defaultSite->id])
-                    ->one()){
+                    ->one()) {
                     $siteSettings = \skeeks\cms\models\CmsComponentSettings::find()
                         ->where(['component' => Cms::className()])
                         ->one();
                 }
                 if ($siteSettings && isset($siteSettings->value['languageCode'])) {
-                    if($code = $siteSettings->value['languageCode']){
+                    if ($code = $siteSettings->value['languageCode']) {
                         self::$_defaultLanguage = $code;
                     }
                 }
