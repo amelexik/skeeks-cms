@@ -10,6 +10,7 @@
         'accept' => 'image/*',
         'multiple' => false,
         'additionalFields'=>[
+            'name',
             'source'
         ]
     ]
