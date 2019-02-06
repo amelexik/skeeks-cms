@@ -217,8 +217,15 @@ class Tree extends Core
             $this->dir = $this->code;
 
             if ($this->level > 1) {
+                // родитель на 1 уровень выше
                 $parent = $this->getParent()->one();
-                $this->dir = $parent->dir . "/" . $this->code;
+                // родитель на 1-м уровне
+                if($this->level == 2){
+                    $dir = $parent->dir;
+                }else{
+                    $dir = $parent->getParents(($parent->level)-1)->one()->dir;
+                }
+                $this->dir = $dir . "-" . $this->code;
             }
         }
 
@@ -714,8 +721,16 @@ class Tree extends Core
             $this->setAttribute('dir', $this->code);
 
             if ($this->level > 1) {
+                // родитель на 1 уровень выше
                 $parent = $this->getParent()->one();
-                $this->setAttribute('dir', $parent->dir . "/" . $this->code);
+                // родитель на 1-м уровне
+                if($this->level == 2){
+                    $dir = $parent->dir;
+                }else{
+                    $dir = $parent->getParents(($parent->level)-1)->one()->dir;
+                }
+                $this->setAttribute('dir', $dir . "-" . $this->code);
+
             }
 
             if (!$this->save()) {
