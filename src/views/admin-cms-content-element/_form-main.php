@@ -5,7 +5,7 @@
 ?>
 <?= $form->fieldSet(\Yii::t('skeeks/cms', 'Main')); ?>
 <?= $form->fieldRadioListBoolean($model, 'active'); ?>
-<?= $form->field($model, 'name')->textInput(['maxlength' => 255]) ?>
+<?= $form->field($model, 'name')->textarea(['maxlength' => 255, 'rows'=>3]) ?>
 
 
 
