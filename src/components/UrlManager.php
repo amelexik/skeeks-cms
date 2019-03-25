@@ -25,6 +25,11 @@ class UrlManager extends \yii\web\UrlManager
 
 
         $url = parent::createUrl($params);
+
+        if (strpos($url, 'mailto:') != false) {
+            $url = preg_replace('/\/+/', '', $url);
+            return $url;
+        }
         /**
          * для аминки
          */
