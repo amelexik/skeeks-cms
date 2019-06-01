@@ -109,7 +109,9 @@ return
         "Name To Save" => "Название при скачивании",
         "Image Width" => "Ширина изображения",
         "Image Height" => "Высота изображения",
+        /** BEGIN OF AMELEX CHANGES */
         "File Source" => "Источник файла",
+        /** END OF AMELEX CHANGES */
 
         "Files" => "Файлы",
         "Images" => "Изображения",
@@ -834,6 +836,7 @@ return
         'Selection widget in the dialog box (multiple choice)' => 'Виджет выбора в диалоговом окне (множественный выбор)',
 
         //TreeMenuWidget
+        'More' => 'Подробнее',
         'The parent section' => 'Родительский раздел',
         'The nesting level' => 'Уровень вложенности',
         'Header' => 'Заголовок',

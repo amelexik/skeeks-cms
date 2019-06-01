@@ -9,7 +9,10 @@
 namespace skeeks\cms\query;
 
 use skeeks\cms\components\Cms;
+/** BEGIN OF AMELEX CHANGES */
 use skeeks\cms\tag\behaviors\CmsTagQueryBehavior;
+/** END OF AMELEX CHANGES */
+
 use yii\db\ActiveQuery;
 
 /**
@@ -20,12 +23,15 @@ class CmsActiveQuery extends ActiveQuery
 {
     public $is_active = true;
 
+    /** BEGIN OF AMELEX CHANGES */
     public function behaviors()
     {
         return array_merge(parent::behaviors(), [
             CmsTagQueryBehavior::className()
         ]);
     }
+    /** END OF AMELEX CHANGES */
+
 
     /**
      * @param bool $state
@@ -44,6 +50,9 @@ class CmsActiveQuery extends ActiveQuery
     {
         return $this->andWhere(['def' => ($state == true ? Cms::BOOL_Y : Cms::BOOL_N)]);
     }
+
+    /** BEGIN OF AMELEX CHANGES */
+
     /**
      * @return $this
      */
@@ -51,7 +60,7 @@ class CmsActiveQuery extends ActiveQuery
     {
         if ($this->is_active === true) {
             $this->andWhere(['is_active' => Cms::BOOL_Y]);
-        }else{
+        } else {
             $this->andWhere(['active' => Cms::BOOL_Y]);
         }
 
@@ -79,4 +88,6 @@ class CmsActiveQuery extends ActiveQuery
         $this->orderBy(['published_at' => $sort]);
         return $this;
     }
+    /** END OF AMELEX CHANGES */
+
 }

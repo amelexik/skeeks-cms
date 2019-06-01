@@ -28,9 +28,9 @@ if ($model->isNewRecord) {
         <div class="row">
             <div class="col-md-12">
                 <div class="pull-right">
-
+                    <?php /** BEGIN OF AMELEX CHANGES */ ?>
                     <a rel="noopener noreferrer" href=https://danilin.biz/clear-share-cache.htm' target='_blank'
-                       class="btn btn-default btn-sm">How to clear cache? <i
+                                                              class="btn btn-default btn-sm">How to clear cache? <i
                                 class="glyphicon glyphicon-arrow-right"></i></a>
 
                     <a href='https://developers.facebook.com/tools/debug/sharing/?q=<?= $model->absoluteUrl; ?>'
@@ -42,6 +42,7 @@ if ($model->isNewRecord) {
 
                     <a href='https://t.me/previews' target='_blank' class="btn btn-default btn-sm">Telegram cache <i
                                 class="glyphicon glyphicon-refresh"></i></a>
+                    <?php /** END OF AMELEX CHANGES */ ?>
 
                     <a href='<?= $model->url; ?>' target='_blank' class="btn btn-default btn-sm"
                        title="<?= \Yii::t('skeeks/cms', 'Watch to site (opens new window)'); ?>">Watch to site <i

@@ -38,10 +38,12 @@ $action = $controller->action;
 <?= $form->field($model, 'view_file')->textInput()
     ->hint(\Yii::t('skeeks/cms', 'The path to the template. If not specified, the pattern will be the same code.')); ?>
 
+<?php /** BEGIN OF AMELEX CHANGES */ ?>
 
 <?= $form->field($model, 'model_class')->textInput()
     ->hint(\Yii::t('skeeks/cms', 'Custom model class. Example: common\models\kpd\News')); ?>
 
+<?php /** END OF AMELEX CHANGES */ ?>
 
 <?= $form->fieldRadioListBoolean($model, 'active'); ?>
 <?= $form->fieldRadioListBoolean($model, 'visible'); ?>

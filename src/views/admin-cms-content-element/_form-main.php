@@ -5,7 +5,10 @@
 ?>
 <?= $form->fieldSet(\Yii::t('skeeks/cms', 'Main')); ?>
 <?= $form->fieldRadioListBoolean($model, 'active'); ?>
+<?php /** BEGIN OF AMELEX CHANGES */ ?>
 <?= $form->field($model, 'name')->textarea(['maxlength' => 255, 'rows'=>3]) ?>
+<?php /** END OF AMELEX CHANGES */ ?>
+
 
 
 

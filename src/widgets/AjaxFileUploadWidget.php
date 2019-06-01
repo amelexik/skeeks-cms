@@ -17,25 +17,26 @@ use yii\helpers\Html;
  */
 class AjaxFileUploadWidget extends \skeeks\yii2\ajaxfileupload\widgets\AjaxFileUploadWidget
 {
-
+    /** BEGIN OF AMELEX CHANGES */
     public $itemOptions = [
         'tag'   => 'div',
         'class' => 'sx-file col-md-3',
     ];
-    public $view_file        = '@skeeks/cms/widgets/views/default';
+    public $view_file = '@skeeks/cms/widgets/views/default';
     /* дополнительные поля для редактирования */
     public $additionalFields = [];
 
-    public function init(){
+    public function init()
+    {
         parent::init();
         $additionalFieldsBlank = [];
-        if($this->additionalFields){
+        if ($this->additionalFields) {
             $file = new CmsStorageFile();
-            foreach ($this->additionalFields as $field){
-                if($file->canGetProperty($field)){
+            foreach ($this->additionalFields as $field) {
+                if ($file->canGetProperty($field)) {
                     $additionalFieldsBlank[$field] = [
-                        'label'=> $file->attributeLabels()[$field],
-                        'value'=> '',
+                        'label' => $file->attributeLabels()[$field],
+                        'value' => '',
                     ];
                 }
 
@@ -43,6 +44,9 @@ class AjaxFileUploadWidget extends \skeeks\yii2\ajaxfileupload\widgets\AjaxFileU
         }
         $this->clientOptions['defaultOptions']['additionalFields'] = $additionalFieldsBlank;
     }
+
+    /** END OF AMELEX CHANGES */
+
 
     protected function _initClientFiles()
     {
@@ -86,20 +90,22 @@ class AjaxFileUploadWidget extends \skeeks\yii2\ajaxfileupload\widgets\AjaxFileU
             'src' => $file->src,
         ];
 
+        /** BEGIN OF AMELEX CHANGES */
         // дополнительные поля для редактирования
-        if($this->additionalFields){
+        if ($this->additionalFields) {
             $fileData['additionalFields'] = [];
             $this->clientOptions['additionalFields'] = [];
-            foreach ($this->additionalFields as $field){
-                if($file->canGetProperty($field)){
+            foreach ($this->additionalFields as $field) {
+                if ($file->canGetProperty($field)) {
                     $fileData['additionalFields'][$field] = [
-                        'label'=> $file->attributeLabels()[$field],
-                        'value'=> $file->{$field} ? $file->{$field} : '',
+                        'label' => $file->attributeLabels()[$field],
+                        'value' => $file->{$field} ? $file->{$field} : '',
                     ];
                 }
 
             }
         }
+        /** END OF AMELEX CHANGES */
 
 
         if ($file->isImage()) {

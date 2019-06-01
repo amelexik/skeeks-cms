@@ -32,10 +32,11 @@ CSS
     </div>
     <?= $form->field($model, 'name')->textInput(['maxlength' => 255])->hint(\Yii::t('skeeks/cms',
         'This name is usually needed for SEO, so that the file was found in the search engines')) ?>
-
+    <?php /** BEGIN OF AMELEX CHANGES */ ?>
     <?= $form->field($model, 'source')->textInput(['maxlength' => 255])->hint(\Yii::t('skeeks/cms',
         'This field is required to indicate the source of the file, for example: latifundist.com')) ?>
-    <?= $form->field($model, 'name_to_save')->textInput(['maxlength' => 255])->hint(\Yii::t('skeeks/cms',
+    <?php /** END OF AMELEX CHANGES */ ?>
+   <?= $form->field($model, 'name_to_save')->textInput(['maxlength' => 255])->hint(\Yii::t('skeeks/cms',
         'Filename, when someone will be download it.')) ?>
 
     <?= $form->fieldSetEnd(); ?>

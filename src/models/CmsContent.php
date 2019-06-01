@@ -114,7 +114,9 @@ class CmsContent extends Core
             'is_allow_change_tree' => Yii::t('skeeks/cms', 'Is Allow Change Default Section'),
             'root_tree_id' => Yii::t('skeeks/cms', 'Root Section'),
             'view_file' => Yii::t('skeeks/cms', 'Template'),
+            /** BEGIN OF AMELEX CHANGES */
             'model_class' => Yii::t('skeeks/cms', 'Model Class'),
+            /** END OF AMELEX CHANGES */
 
             'meta_title_template' => Yii::t('skeeks/cms', 'Шаблон META TITLE'),
             'meta_description_template' => Yii::t('skeeks/cms', 'Шаблон META KEYWORDS'),
@@ -144,7 +146,9 @@ class CmsContent extends Core
             [['meta_title_template'], 'string'],
             [['meta_description_template'], 'string'],
             [['meta_keywords_template'], 'string'],
+            /** BEGIN OF AMELEX CHANGES */
             [['name', 'view_file', 'model_class'], 'string', 'max' => 255],
+            /** END OF AMELEX CHANGES */
             [['code'], 'string', 'max' => 50],
             [['code'], 'unique'],
             [['access_check_element'], 'string'],
@@ -276,7 +280,8 @@ class CmsContent extends Core
     {
         return $this->hasMany(CmsContentProperty::className(),
             ['id' => 'cms_content_property_id'])
-            ->viaTable('cms_content_property2content', ['cms_content_id' => 'id'])
+            ->via('cmsContentProperty2contents')
+            //->viaTable('cms_content_property2content', ['cms_content_id' => 'id'])
             ->orderBy('priority')
             ;
     }

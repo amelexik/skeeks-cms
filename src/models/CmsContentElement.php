@@ -9,6 +9,7 @@
 namespace skeeks\cms\models;
 
 use skeeks\cms\components\Cms;
+use skeeks\cms\components\urlRules\UrlRuleContentElement;
 use skeeks\cms\mention\behaviors\CmsMentionBehavior;
 use skeeks\cms\models\behaviors\HasMultiLangAndSiteFields;
 use skeeks\cms\models\behaviors\HasRelatedProperties;
@@ -21,7 +22,9 @@ use skeeks\cms\models\behaviors\traits\HasRelatedPropertiesTrait;
 use skeeks\cms\models\behaviors\traits\HasTreesTrait;
 use skeeks\cms\models\behaviors\traits\HasUrlTrait;
 use skeeks\cms\relatedProperties\models\RelatedElementModel;
+/** BEGIN OF AMELEX CHANGES */
 use skeeks\cms\tag\behaviors\CmsTagBehavior;
+/** END OF AMELEX CHANGES */
 use skeeks\yii2\yaslug\YaSlugBehavior;
 use Yii;
 use yii\helpers\ArrayHelper;
@@ -134,45 +137,42 @@ class CmsContentElement extends RelatedElementModel
         return array_merge(parent::behaviors(), [
             TimestampPublishedBehavior::className() => TimestampPublishedBehavior::className(),
 
-            HasStorageFile::className()      =>
-                [
-                    'class'  => HasStorageFile::className(),
-                    'fields' => ['image_id', 'image_full_id'],
-                ],
-            HasStorageFileMulti::className() =>
-                [
-                    'class'     => HasStorageFileMulti::className(),
-                    'relations' => [
-                        [
-                            'relation' => 'images',
-                            'property' => 'imageIds',
-                        ],
-                        [
-                            'relation' => 'files',
-                            'property' => 'fileIds',
-                        ],
+            HasStorageFile::className()      => [
+                'class'  => HasStorageFile::className(),
+                'fields' => ['image_id', 'image_full_id'],
+            ],
+            HasStorageFileMulti::className() => [
+                'class'     => HasStorageFileMulti::className(),
+                'relations' => [
+                    [
+                        'relation' => 'images',
+                        'property' => 'imageIds',
+                    ],
+                    [
+                        'relation' => 'files',
+                        'property' => 'fileIds',
                     ],
                 ],
+            ],
 
-            HasRelatedProperties::className() =>
-                [
-                    'class'                           => HasRelatedProperties::className(),
-                    'relatedElementPropertyClassName' => CmsContentElementProperty::className(),
-                    'relatedPropertyClassName'        => CmsContentProperty::className(),
-                ],
+            HasRelatedProperties::className() => [
+                'class'                           => HasRelatedProperties::className(),
+                'relatedElementPropertyClassName' => CmsContentElementProperty::className(),
+                'relatedPropertyClassName'        => CmsContentProperty::className(),
+            ],
 
-            HasTrees::className() =>
-                [
-                    'class' => HasTrees::className(),
-                ],
+            HasTrees::className() => [
+                'class' => HasTrees::className(),
+            ],
 
-            YaSlugBehavior::class =>
-                [
-                    'class'         => YaSlugBehavior::class,
-                    'attribute'     => 'name',
-                    'slugAttribute' => 'code',
-                    'maxLength'     => \Yii::$app->cms->element_max_code_length,
-                ],
+            YaSlugBehavior::class => [
+                'class'         => YaSlugBehavior::class,
+                'attribute'     => 'name',
+                'slugAttribute' => 'code',
+                'maxLength'     => \Yii::$app->cms->element_max_code_length,
+            ],
+            /** BEGIN OF AMELEX CHANGES */
+
             CmsTagBehavior::class =>
                 [
                     'class'         => CmsTagBehavior::class,
@@ -181,6 +181,7 @@ class CmsContentElement extends RelatedElementModel
                 [
                     'class'         => CmsMentionBehavior::class,
                 ]
+            /** END OF AMELEX CHANGES */
         ]);
     }
     /**
@@ -220,6 +221,7 @@ class CmsContentElement extends RelatedElementModel
             'files'                     => Yii::t('skeeks/cms', 'Files'),
             'treeIds'                   => Yii::t('skeeks/cms', 'Additional sections'),
             'parent_content_element_id' => Yii::t('skeeks/cms', 'Parent element'),
+            'show_counter'              => Yii::t('skeeks/cms', 'Number of views'),
         ]);
     }
     /**
@@ -379,13 +381,26 @@ class CmsContentElement extends RelatedElementModel
     {
         return $this->hasOne(Tree::className(), ['id' => 'tree_id']);
     }
+
+    static public $_contents = [];
     /**
      * Все возможные свойства связанные с моделью
      * @return \yii\db\ActiveQuery
      */
     public function getRelatedProperties()
     {
-        return $this->cmsContent->getCmsContentProperties();
+
+        //return $this->treeType->getCmsTreeTypeProperties();
+        if (isset(self::$_contents[$this->content_id])) {
+            $cmsContent = self::$_contents[$this->content_id];
+        } else {
+            self::$_contents[$this->content_id] = $this->cmsContent;
+            $cmsContent = self::$_contents[$this->content_id];
+        }
+        return $cmsContent->getCmsContentProperties();
+        //return $this->cmsContent->getCmsContentProperties();
+
+        //return $this->cmsContent->getCmsContentProperties();
 
         /*$query = $this->cmsContent->getCmsContentProperties();
         $query->joinWith('cmsContentProperty2trees as map2trees')
@@ -437,10 +452,11 @@ class CmsContentElement extends RelatedElementModel
      */
     public function getUrl($scheme = false, $params = [])
     {
+        UrlRuleContentElement::$models[$this->id] = $this;
         if ($params) {
-            $params = ArrayHelper::merge(['/cms/content-element/view', 'model' => $this], $params);
+            $params = ArrayHelper::merge(['/cms/content-element/view', 'id' => $this->id], $params);
         } else {
-            $params = ['/cms/content-element/view', 'model' => $this];
+            $params = ['/cms/content-element/view', 'id' => $this->id];
         }
 
         return Url::to($params, $scheme);

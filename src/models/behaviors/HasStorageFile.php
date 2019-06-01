@@ -50,6 +50,9 @@ class HasStorageFile extends Behavior
      */
     protected $_removeFiles = [];
 
+    /**
+     * @return array
+     */
     public function events()
     {
         return [
@@ -90,6 +93,7 @@ class HasStorageFile extends Behavior
                         }
                     }
 
+                    /** BEGIN OF AMELEX CHANGES */
                     /* ADDITIONAL attributes */
                     $postName = basename(str_replace('\\', '/', get_class($this->owner)));
                     $form = \Yii::$app->request->post($postName);
@@ -97,6 +101,7 @@ class HasStorageFile extends Behavior
                         $data = array_merge($data, $additionalData);
                     }
                     /* END OF ADDITIONAL attributes */
+                    /** END OF AMELEX CHANGES */
 
                     $file = \Yii::$app->storage->upload($this->owner->{$fieldCode}, $data);
                     if ($file) {
@@ -111,15 +116,15 @@ class HasStorageFile extends Behavior
                 }
             }
         }
-        /* update attributes */
-        if(\Yii::$app->request->isPost) {
+        /** BEGIN OF AMELEX CHANGES */
+        if (\Yii::$app->request->isPost) {
             $postName = basename(str_replace('\\', '/', get_class($this->owner)));
             $form = \Yii::$app->request->post($postName);
             foreach ($this->fields as $fieldValue) {
                 if ($fileId = $this->owner->{$fieldValue}) {
                     if ($storageFile = CmsStorageFile::findOne($fileId)) {
-                        if($additionalAttributes = @$form['uploadData'][$fileId]){
-                            foreach ($additionalAttributes as $attribute => $value){
+                        if ($additionalAttributes = @$form['uploadData'][$fileId]) {
+                            foreach ($additionalAttributes as $attribute => $value) {
                                 $storageFile->{$attribute} = $value;
                             }
                         }
@@ -128,6 +133,9 @@ class HasStorageFile extends Behavior
                 }
             }
         }
+        /** END OF AMELEX CHANGES */
+        /* update attributes */
+
     }
 
     /**

@@ -96,7 +96,7 @@ function dashboardsMenu()
     } else {
         $result[] = [
             "label" => \Yii::t('skeeks/cms', "Рабочий стол 1"),
-            "url"   => ["admin/index"],
+            "url"   => ["admin/admin-index"],
             "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/dashboard.png'],
         ];
     }

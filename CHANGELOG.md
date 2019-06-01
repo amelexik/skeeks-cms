@@ -1,6 +1,81 @@
 CHANGELOG
 ==============
 
+5.5.5
+-----------------
+ * Update ajax submit forms
+ * Optimisations query RP
+
+5.5.4.2
+-----------------
+ * Fixed CmsContentElement redirect
+ * Fixed CmsLang is_active
+ * Component cache key dependency lang
+ 
+5.5.4.1
+-----------------
+ * CmsLang removed is_default
+ 
+5.5.4
+-----------------
+ * CmsLang removed def
+ * CmsLang removed active
+ * CmsLang added boolean is_default
+ * CmsLang added boolean is_active
+ 
+5.5.3
+-----------------
+ * В настройках компонентов, можно использовать сложные формы с логикой 'elementOptions' => [ 'data' => [ 'form-reload' => 'true', ], ],
+ * Валидация code RelatedProperty теперь допускает "_" 
+ * Removed I18N 
+ 
+5.5.2.1
+-----------------
+ * Fixed edit blocks
+ 
+5.5.2
+-----------------
+ * Update "giggsey/libphonenumber-for-php": "8.8.11 || ^8.10.8"
+ * Update elfinder
+ * Fixed display none important
+ 
+5.5.1
+-----------------
+ * Dependency update
+ 
+5.5.0
+-----------------
+ * Yii 2.0.17 updated
+ 
+5.4.0
+-----------------
+ * Update cms widgets
+ 
+5.3.2
+-----------------
+ * Yii 2.0.16.1
+ 
+5.3.1
+-----------------
+ * Fixed password change
+ * Upa permission added
+ 
+5.3.0
+-----------------
+ * RelatedPropertiesModel::getAttributeAsHtml($name) is new method
+ * RelatedPropertiesModel::getAttributeAsText($name) is new method
+ * RelatedPropertiesModel::getSmartAttribute($name) is depricated!
+ * PropertyType::getAsHtml() is new method
+ * PropertyType::getAsText() is new method
+ * PropertyType::getStringValue() is depricated!
+ * HasStorageFileMulti::relations — change default data!
+ * Added ability to use files in advanced properties 
+ * Updated additional properties mechanism 
+
+5.2.11
+-----------------
+ * skeeks\cms\models\Tree - new method getActiveChildren();
+ 
 5.2.10
 -----------------
  * Fixed rbac

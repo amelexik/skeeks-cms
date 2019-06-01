@@ -15,6 +15,7 @@ use paulzi\adjacencyList\AdjacencyListBehavior;
 use paulzi\autotree\AutoTreeTrait;
 use paulzi\materializedPath\MaterializedPathBehavior;
 use skeeks\cms\components\Cms;
+use skeeks\cms\components\urlRules\UrlRuleTree;
 use skeeks\cms\models\behaviors\CanBeLinkedToTree;
 use skeeks\cms\models\behaviors\HasRelatedProperties;
 use skeeks\cms\models\behaviors\HasStorageFile;
@@ -97,6 +98,7 @@ use yii\helpers\Url;
  * @property Tree $parent
  * @property Tree[] $parents
  * @property Tree[] $children
+ * @property Tree[] $activeChildren
  * @property Tree $root
  * @property Tree $prev
  * @property Tree $next
@@ -418,13 +420,15 @@ class Tree extends Core
      */
     public function getUrl($scheme = false, $params = [])
     {
+        UrlRuleTree::$models[$this->id] = $this;
+
         if ($params) {
-            $params = ArrayHelper::merge(['/cms/tree/view', 'model' => $this], $params);
+            $params = ArrayHelper::merge(['/cms/tree/view', 'id' => $this->id], $params);
         } else {
-            $params = ['/cms/tree/view', 'model' => $this];
+            $params = ['/cms/tree/view', 'id' => $this->id];
         }
 
-        return Url::to(['/cms/tree/view', 'model' => $this], $scheme);
+        return Url::to(['/cms/tree/view', 'id' => $this->id], $scheme);
     }
 
     /**
@@ -485,6 +489,7 @@ class Tree extends Core
     }
 
 
+    static protected $_treeTypes = [];
     /**
      * Все возможные свойства связанные с моделью
      *
@@ -492,9 +497,18 @@ class Tree extends Core
      */
     public function getRelatedProperties()
     {
-        /*return $this->hasMany(CmsTreeTypeProperty::className(), ['tree_type_id' => 'id'])
-                    ->via('treeType')->orderBy(['priority' => SORT_ASC]);*/
-        return $this->treeType->getCmsTreeTypeProperties();
+        //return $this->treeType->getCmsTreeTypeProperties();
+        if (isset(self::$_treeTypes[$this->tree_type_id])) {
+            $treeType = self::$_treeTypes[$this->tree_type_id];
+        } else {
+            self::$_treeTypes[$this->tree_type_id] = $this->treeType;
+            $treeType = self::$_treeTypes[$this->tree_type_id];
+        }
+        if (!$treeType) {
+            return CmsTreeTypeProperty::find()->where(['id' => null]);
+        }
+        //return $this->treeType->getCmsTreeTypeProperties();
+        return $treeType->getCmsTreeTypeProperties();
     }
 
 
@@ -767,6 +781,14 @@ class Tree extends Core
         $paths[] = $this->name;
 
         return implode($glue, $paths);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getActiveChildren()
+    {
+        return $this->getChildren()->active();
     }
 }
 

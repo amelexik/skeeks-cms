@@ -80,17 +80,21 @@ JS
 <?= $form->field($model, 'hint')->textInput() ?>
 <?= $form->fieldInputInt($model, 'priority') ?>
 
+<?php /** BEGIN OF AMELEX CHANGES */ ?>
 <?= $form->fieldSelect($model, 'group',
     [
-    '' => \Yii::t('skeeks/cms', "Empty"),
-    1 => \Yii::t('skeeks/cms', "Group 1"),
-    2 => \Yii::t('skeeks/cms', "Group 2"),
-    3 => \Yii::t('skeeks/cms', "Group 3"),
+        '' => \Yii::t('skeeks/cms', "Empty"),
+        1 => \Yii::t('skeeks/cms', "Group 1"),
+        2 => \Yii::t('skeeks/cms', "Group 2"),
+        3 => \Yii::t('skeeks/cms', "Group 3"),
     ],
     [
         'allowDeselect' => true
     ])->hint(\Yii::t('skeeks/cms',
     'Group by properties on frontend view page')); ?>
+<?php /** END OF AMELEX CHANGES */ ?>
+
+
 
 <?php if ($content_id = \Yii::$app->request->get('content_id')) : ?>
 

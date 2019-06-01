@@ -360,7 +360,7 @@ class GridView extends \yii\grid\GridView
                     $cells = [];
 
                     foreach ($this->columns as $column) {
-                        $cells[] = iconv("UTF-8", "windows-1251", strip_tags($column->renderDataCell($model, $key, $key)));
+                        $cells[] = iconv("UTF-8", "windows-1251//IGNORE", strip_tags($column->renderDataCell($model, $key, $key)));
                     }
 
                     fputcsv($out, $cells, ";");
@@ -480,6 +480,17 @@ JS
         $dataProvider = $this->dataProvider;
 
         $dataProvider->getSort()->attributes = ArrayHelper::merge($dataProvider->getSort()->attributes, $this->sortAttributes);
+
+        //Бывает ситуация когда сохранили настройки сортировки а потом удалил поля и забыз и как таковых атрибутов для сортировки уже нет
+        if ($this->defaultOrder && is_array($this->defaultOrder)) {
+            foreach ($this->defaultOrder as $key => $value)
+            {
+                if (!isset($dataProvider->getSort()->attributes[$key])) {
+                    unset($this->defaultOrder[$key]);
+                }
+            }
+        }
+
         $dataProvider->getSort()->defaultOrder = $this->defaultOrder;
 
         return $this;

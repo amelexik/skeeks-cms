@@ -43,7 +43,7 @@ class AdminToolsController extends AdminController
         return ArrayHelper::merge(parent::behaviors(),
             [
                 //Проверка доступа к админ панели
-                'access' =>
+                'adminViewEditAccess' =>
                     [
                         'class' => AdminAccessControl::className(),
                         'only' => ['view-file-edit'],

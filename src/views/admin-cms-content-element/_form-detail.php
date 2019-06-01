@@ -10,10 +10,13 @@
     [
         'accept' => 'image/*',
         'multiple' => false,
+        /** BEGIN OF AMELEX CHANGES */
         'additionalFields'=>[
             'name',
             'source'
         ]
+        /** END OF AMELEX CHANGES */
+
     ]
 ); ?>
 

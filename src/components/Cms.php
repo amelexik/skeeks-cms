@@ -69,8 +69,14 @@ use yii\widgets\ActiveForm;
  */
 class Cms extends \skeeks\cms\base\Component
 {
+    /**
+     * Разршение на доступ к персональной части
+     */
+    const UPA_PERMISSION = 'cms-upa-permission';
+
     const BOOL_Y = "Y";
     const BOOL_N = "N";
+
     private static $_huck = 'Z2VuZXJhdG9y';
     /**
      * @var string E-Mail администратора сайта (отправитель по умолчанию).
@@ -110,7 +116,7 @@ class Cms extends \skeeks\cms\base\Component
      * Время последней активности когда считается что пользователь онлайн
      * @var int
      */
-    public $userOnlineTime              = 60; //1 минута
+    public $userOnlineTime = 60; //1 минута
 
     /**
      * Схема временных папок
@@ -216,10 +222,10 @@ class Cms extends \skeeks\cms\base\Component
                     [
                         'class' => PropertyTypeElement::className(),
                     ],
-                /*PropertyTypeStorageFile::className() =>
+                PropertyTypeStorageFile::className() =>
                     [
                         'class' => PropertyTypeStorageFile::className()
-                    ],*/
+                    ],
 
                 UserPropertyTypeDate::className()       =>
                     [
@@ -266,10 +272,10 @@ class Cms extends \skeeks\cms\base\Component
                     [
                         'class' => PropertyTypeElement::className(),
                     ],
-                /*PropertyTypeStorageFile::className() =>
+                PropertyTypeStorageFile::className() =>
                     [
                         'class' => PropertyTypeStorageFile::className()
-                    ],*/
+                    ],
 
                 UserPropertyTypeDate::className()       =>
                     [
@@ -559,7 +565,7 @@ class Cms extends \skeeks\cms\base\Component
         if ($this->relatedHandlers) {
             foreach ($this->relatedHandlers as $id => $handler) {
                 if ($handler instanceof PropertyTypeBool || $handler instanceof PropertyTypeText || $handler instanceof PropertyTypeNumber || $handler instanceof PropertyTypeList
-                    || $handler instanceof PropertyTypeFile || $handler instanceof PropertyTypeTree || $handler instanceof PropertyTypeElement
+                    || $handler instanceof PropertyTypeFile || $handler instanceof PropertyTypeTree || $handler instanceof PropertyTypeElement|| $handler instanceof PropertyTypeStorageFile
                 ) {
                     $baseTypes[$handler->id] = $handler->name;
                 } else {

@@ -8,20 +8,71 @@
 
 namespace skeeks\cms\traits;
 
+use skeeks\cms\assets\ActiveFormAjaxSubmitAsset;
+
 /**
- * Class ActiveFormAjaxSubmit
+ * Trait ActiveFormAjaxSubmitTrait
  * @package skeeks\cms\traits
  */
 trait ActiveFormAjaxSubmitTrait
 {
+    /**
+     * @var null
+     */
+    public $clientCallback = null;
+
+    /**
+     * @deprecated
+     * @var string
+     */
+    public $afterValidateCallback = "";
+
     public function registerJs()
     {
+        ActiveFormAjaxSubmitAsset::register($this->view);
+
+        $this->view->registerJs(<<<JS
+sx.ActiveForm = new sx.classes.activeForm.AjaxSubmit('{$this->id}');
+JS
+    );
         $afterValidateCallback = $this->afterValidateCallback;
+        $clientCallback = $this->clientCallback;
+
+        if ($clientCallback) {
+            $this->view->registerJs(<<<JS
+            var callback = $clientCallback;
+            callback(sx.ActiveForm);
+JS
+    );
+        }
+        elseif ($afterValidateCallback) {
+            $this->view->registerJs(<<<JS
+            sx.ActiveForm.on('afterValidate', function() {
+                var callback = $afterValidateCallback;
+                callback(sx.ActiveForm.jForm, sx.ActiveForm.AjaxQuery);
+            });
+JS
+    );
+        }
+
+
+        /*$afterValidateCallback = $this->afterValidateCallback;
         if ($afterValidateCallback) {
             $this->view->registerJs(<<<JS
-                    
+
+
                 $('#{$this->id}').on('beforeSubmit', function (event, attribute, message) {
+                    console.log('beforeSubmit');
                     return false;
+                });
+
+                $('#{$this->id}').on('submit', function (event, attribute, message) {
+                    console.log('submit');
+                    return false;
+                });
+
+                $('#{$this->id}').on('beforeValidate', function (event, messages, deferreds) {
+                    console.log('beforeValidate');
                 });
 
                 $('#{$this->id}').on('ajaxComplete', function (event, jqXHR, textStatus) {
@@ -35,9 +86,11 @@ trait ActiveFormAjaxSubmitTrait
                     }
                 });
 
-                $('#{$this->id}').on('afterValidate', function (event, messages) {
+                $('#{$this->id}').on('afterValidate', function (event, messages, errorAttributes) {
 
-                    if (event.result === false)
+                    console.log('afterValidate');
+
+                    if (_.size(errorAttributes) > 0)
                     {
                         sx.notify.error('Проверьте заполненные поля в форме');
                         return false;
@@ -68,9 +121,16 @@ JS
                 });
 
 
-                $('#{$this->id}').on('afterValidate', function (event, messages) {
+                $('#{$this->id}').on('submit', function (event, attribute, message) {
+                    return false;
+                });
 
-                    if (event.result === false)
+                $('#{$this->id}').on('beforeValidate', function (event, messages, deferreds) {
+                });
+
+                $('#{$this->id}').on('afterValidate', function (event, messages, errorAttributes) {
+
+                    if (_.size(errorAttributes) > 0)
                     {
                         sx.notify.error('Проверьте заполненные поля в форме');
                         return false;
@@ -91,7 +151,7 @@ JS
 
 JS
             );
-        }
+        }*/
 
     }
 

@@ -47,7 +47,7 @@ class AdminCmsLangController extends BackendModelStandartController
                 ],
                 'grid'    => [
                     'defaultOrder' => [
-                        'active' => SORT_DESC,
+                        'is_active' => SORT_DESC,
                         'priority' => SORT_ASC,
                     ],
                     'visibleColumns' => [
@@ -57,13 +57,14 @@ class AdminCmsLangController extends BackendModelStandartController
                         'image_id',
                         'name',
                         'code',
-                        'active',
+                        'is_active',
                         'priority',
                     ],
                     'columns'        => [
-                        'active'   => [
+                        'is_active'   => [
                             'class' => BooleanColumn::class,
                         ],
+
                         'image_id' => [
                             'class' => ImageColumn2::class,
                         ],
@@ -99,10 +100,8 @@ class AdminCmsLangController extends BackendModelStandartController
                 ],
             ],
             'code',
-            'active'   => [
+            'is_active'   => [
                 'class'      => BoolField::class,
-                'trueValue'  => "Y",
-                'falseValue' => "N",
             ],
             'name',
             'description',

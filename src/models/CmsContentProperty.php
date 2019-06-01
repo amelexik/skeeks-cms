@@ -71,7 +71,9 @@ class CmsContentProperty extends RelatedPropertyModel
         return ArrayHelper::merge(parent::attributeLabels(), [
             'cmsContents' => Yii::t('skeeks/cms', 'Linked to content'),
             'cmsTrees' => Yii::t('skeeks/cms', 'Linked to sections'),
+            /** BEGIN OF AMELEX CHANGES */
             'group' => Yii::t('skeeks/cms', 'Groups'),
+            /** END OF AMELEX CHANGES */
         ]);
     }
 
@@ -82,7 +84,9 @@ class CmsContentProperty extends RelatedPropertyModel
     public function rules()
     {
         $rules = ArrayHelper::merge(parent::rules(), [
+            /** BEGIN OF AMELEX CHANGES */
             [['content_id', 'group'], 'integer'],
+            /** END OF AMELEX CHANGES */
             [['cmsContents'], 'safe'],
             [['cmsTrees'], 'safe'],
             [['code'], 'unique'],

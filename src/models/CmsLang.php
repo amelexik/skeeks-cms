@@ -23,8 +23,7 @@ use yii\helpers\ArrayHelper;
  * @property integer $updated_by
  * @property integer $created_at
  * @property integer $updated_at
- * @property string $active
- * @property string $def
+ * @property boolean $is_active
  * @property integer $priority
  * @property string $code
  * @property string $name
@@ -44,14 +43,6 @@ class CmsLang extends Core
         return '{{%cms_lang}}';
     }
 
-    public function init()
-    {
-        parent::init();
-
-        $this->on(BaseActiveRecord::EVENT_BEFORE_INSERT, [$this, 'afterBeforeChecks']);
-        $this->on(BaseActiveRecord::EVENT_BEFORE_UPDATE, [$this, 'afterBeforeChecks']);
-    }
-
     public function behaviors()
     {
         return ArrayHelper::merge(parent::behaviors(), [
@@ -64,21 +55,6 @@ class CmsLang extends Core
         ]);
     }
 
-    /**
-     * @param Event $e
-     * @throws Exception
-     */
-    public function afterBeforeChecks(Event $e)
-    {
-        //Если этот элемент по умолчанию выбран, то все остальны нужно сбросить.
-        if ($this->active != Cms::BOOL_Y) {
-            $active = static::find()->where(['!=', 'id', $this->id])->active()->one();
-
-            if (!$active) {
-                $this->active = Cms::BOOL_Y;
-            }
-        }
-    }
 
     /**
      * @inheritdoc
@@ -86,13 +62,7 @@ class CmsLang extends Core
     public function attributeLabels()
     {
         return array_merge(parent::attributeLabels(), [
-            'id' => Yii::t('skeeks/cms', 'ID'),
-            'created_by' => Yii::t('skeeks/cms', 'Created By'),
-            'updated_by' => Yii::t('skeeks/cms', 'Updated By'),
-            'created_at' => Yii::t('skeeks/cms', 'Created At'),
-            'updated_at' => Yii::t('skeeks/cms', 'Updated At'),
-            'active' => Yii::t('skeeks/cms', 'Active'),
-            'def' => Yii::t('skeeks/cms', 'Default'),
+            'is_active' => Yii::t('skeeks/cms', 'Active'),
             'priority' => Yii::t('skeeks/cms', 'Priority'),
             'code' => Yii::t('skeeks/cms', 'Code'),
             'name' => Yii::t('skeeks/cms', 'Name'),
@@ -104,7 +74,7 @@ class CmsLang extends Core
     public function attributeHints()
     {
         return array_merge(parent::attributeLabels(), [
-            'active' => \Yii::t('skeeks/cms', 'On the site must be included at least one language'),
+            'is_active' => \Yii::t('skeeks/cms', 'On the site must be included at least one language'),
         ]);
     }
 
@@ -118,14 +88,13 @@ class CmsLang extends Core
             [['created_by', 'updated_by', 'created_at', 'updated_at', 'priority'], 'integer'],
             [['code', 'name'], 'required'],
             [['code'], 'validateCode'],
-            [['active', 'def'], 'string', 'max' => 1],
             [['code'], 'string', 'max' => 5],
             [['name', 'description'], 'string', 'max' => 255],
             [['code'], 'unique'],
             ['priority', 'default', 'value' => 500],
-            ['active', 'default', 'value' => Cms::BOOL_Y],
-            ['def', 'default', 'value' => Cms::BOOL_N],
             [['image_id'], 'safe'],
+
+            [['is_active'], 'boolean'],
 
             [
                 ['image_id'],
@@ -134,7 +103,7 @@ class CmsLang extends Core
                 'extensions' => ['jpg', 'jpeg', 'gif', 'png'],
                 'maxFiles' => 1,
                 'maxSize' => 1024 * 1024 * 2,
-                'minSize' => 1024,
+                'minSize' => 100,
             ],
         ]);
     }
@@ -162,5 +131,24 @@ class CmsLang extends Core
     public function getImage()
     {
         return $this->hasOne(CmsStorageFile::className(), ['id' => 'image_id']);
+    }
+
+
+    /**
+     * @deprecated
+     * @return string
+     */
+    public function getDef()
+    {
+        return \Yii::$app->cms->languageCode == $this->code ? "Y" : "N";
+    }
+
+    /**
+     * @deprecated
+     * @return string
+     */
+    public function getActive()
+    {
+        return $this->is_active ? "Y" : "N";
     }
 }

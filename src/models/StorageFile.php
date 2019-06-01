@@ -65,7 +65,9 @@ class StorageFile extends Core
                 'integer'
             ],
             [['description_short', 'description_full'], 'string'],
+            /** BEGIN OF AMELEX CHANGES */
             [['cluster_file', 'original_name', 'name','source'], 'string', 'max' => 255],
+            /** END OF AMELEX CHANGES */
             [['cluster_id', 'mime_type', 'extension'], 'string', 'max' => 16],
             [['name_to_save'], 'string', 'max' => 32],
             [
@@ -101,7 +103,10 @@ class StorageFile extends Core
             'description_full' => Yii::t('skeeks/cms', 'Description Full'),
             'image_height' => Yii::t('skeeks/cms', 'Image Height'),
             'image_width' => Yii::t('skeeks/cms', 'Image Width'),
+            /** BEGIN OF AMELEX CHANGES */
             'source' => Yii::t('skeeks/cms', 'File Source'),
+            /** END OF AMELEX CHANGES */
+
         ]);
     }
 

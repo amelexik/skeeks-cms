@@ -117,30 +117,26 @@ class ContentElementController extends Controller
         //TODO: Может быть не сбрасывать GET параметры
         if (Url::isRelative($contentElement->url)) {
 
-            $url = \Yii::$app->request->url;
+            $url = \Yii::$app->request->absoluteUrl;
             if ($pos = strpos($url, '?')) {
                 $url = substr($url, 0, $pos);
             }
 
-            if ($contentElement->url != $url) {
-                $url = $contentElement->url;
+            if ($contentElement->getUrl(true) != $url) {
+                $url = $contentElement->getUrl(true);
                 \Yii::$app->response->redirect($url, 301);
             }
         } else {
 
-            if ($urlData = parse_url($contentElement->url)) {
-                $url = \Yii::$app->request->url;
+            if ($urlData = parse_url($contentElement->getUrl(true))) {
+                $url = \Yii::$app->request->absoluteUrl;
                 if ($pos = strpos($url, '?')) {
                     $url = substr($url, 0, $pos);
                 }
+                $requestUrlData = parse_url($url);
 
-                //$contentUrl = \Yii::$app->request->url;
-                /*if (\Yii::$app->homeUrl != '/') {
-                    $contentUrl = "/" . StringHelper::substr(\Yii::$app->request->url, StringHelper::strlen(\Yii::$app->homeUrl), StringHelper::strlen(\Yii::$app->request->url));
-                }*/
-                //if (ArrayHelper::getValue($urlData, 'path') != "/" . \Yii::$app->request->pathInfo) {
-                if (ArrayHelper::getValue($urlData, 'path') != $url) {
-                    $url = $contentElement->url;
+                if (ArrayHelper::getValue($urlData, 'path') != ArrayHelper::getValue($requestUrlData, 'path')) {
+                    $url = $contentElement->getUrl(true);
                     \Yii::$app->response->redirect($url, 301);
                 }
             }
