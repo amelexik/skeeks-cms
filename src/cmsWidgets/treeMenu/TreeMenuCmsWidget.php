@@ -12,6 +12,7 @@ use skeeks\cms\base\WidgetRenderable;
 use skeeks\cms\components\Cms;
 use skeeks\cms\grid\BooleanColumn;
 use skeeks\cms\models\CmsSite;
+use skeeks\cms\models\CmsTree;
 use skeeks\cms\models\Tree;
 use skeeks\cms\widgets\formInputs\selectTree\SelectTreeInputWidget;
 use skeeks\yii2\form\fields\BoolField;

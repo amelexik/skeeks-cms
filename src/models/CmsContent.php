@@ -34,6 +34,7 @@ use yii\helpers\ArrayHelper;
  * @property string $name_one
  * @property integer $default_tree_id
  * @property string $is_allow_change_tree
+ * @property integer $is_count_views
  * @property integer $root_tree_id
  * @property string $view_file
  * @property string $access_check_element

@@ -1,6 +1,11 @@
 CHANGELOG
 ==============
 
+5.5.7
+-----------------
+ * Cms content element is_count_views
+ * Delete child elements updated
+ 
 5.5.5
 -----------------
  * Update ajax submit forms

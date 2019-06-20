@@ -195,7 +195,7 @@ trait TWidget
      * If the view name does not contain a file extension, it will use the default one `.php`.
      *
      * @param string $view the view name.
-     * @param array $params the parameters (name-value pairs) that should be made available in the view.
+     * @param array  $params the parameters (name-value pairs) that should be made available in the view.
      * @return string the rendering result.
      * @throws InvalidParamException if the view file does not exist.
      */
