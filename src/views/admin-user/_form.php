@@ -60,13 +60,13 @@ $action = $controller->action;
         \skeeks\cms\admin\assets\JqueryMaskInputAsset::register($this);
         $id = \yii\helpers\Html::getInputId($model, 'phone');
         $this->registerJs(<<<JS
-$("#{$id}").mask("+7 999 999-99-99");
+$("#{$id}").mask("+38 999 999-99-99");
 JS
         );
         ?>
 
         <?= $form->field($model, 'phone')->textInput([
-            'placeholder' => '+7 903 722-28-73'
+            'placeholder' => '+38 067 999-99-99'
         ]); ?>
         <?php if (\Yii::$app->user->can(\skeeks\cms\rbac\CmsManager::PERMISSION_USER_FULL_EDIT)) : ?>
             <?= $form->field($model, 'phone_is_approved')->checkbox(\Yii::$app->formatter->booleanFormat); ?>
