@@ -50,25 +50,26 @@ class UrlManager extends \yii\web\UrlManager
                     $url = empty($sLangPrefix) ? $url : ('/' . $sLangPrefix . $url);
                     return $url;
                 }
-            }
-            if ($params[0] == 'cms/content-element/view' && isset($params['id'])) {
-                /* @var  CmsContentElement $model */
-                if (!$model = CmsContentElement::findOne([$params['id']]))
-                    return $url;
-                /* @var  CmsTree $tree */
-                if (!$tree = $model->getCmsTree()->one())
-                    return $url;
-                /* @var  CmsSite $site */
-                if (!$site = $tree->site)
-                    return $url;
-                $siteId = $site->primaryKey;
-                if (!isset(LanguageDetect::getSitesLanguage()[$siteId]))
-                    return $url;
 
-                $sLangCode = LanguageDetect::getSitesLanguage()[$siteId];
-                $sLangPrefix = LanguageDetect::getPrefix($sLangCode);
-                $url = empty($sLangPrefix) ? $url : ('/' . $sLangPrefix . $url);
-                return $url;
+                if ($params[0] == 'cms/content-element/view' && isset($params['id'])) {
+                    /* @var  CmsContentElement $model */
+                    if (!$model = CmsContentElement::findOne([$params['id']]))
+                        return $url;
+                    /* @var  CmsTree $tree */
+                    if (!$tree = $model->getCmsTree()->one())
+                        return $url;
+                    /* @var  CmsSite $site */
+                    if (!$site = $tree->site)
+                        return $url;
+                    $siteId = $site->primaryKey;
+                    if (!isset(LanguageDetect::getSitesLanguage()[$siteId]))
+                        return $url;
+
+                    $sLangCode = LanguageDetect::getSitesLanguage()[$siteId];
+                    $sLangPrefix = LanguageDetect::getPrefix($sLangCode);
+                    $url = empty($sLangPrefix) ? $url : ('/' . $sLangPrefix . $url);
+                    return $url;
+                }
             }
             return $url;
         } else {
