@@ -254,96 +254,95 @@ return
             ],
 
 
-        'settings' =>
-            [
-                'priority' => 300,
-                'label'    => \Yii::t('skeeks/cms', 'Settings'),
-                "img"      => ['\skeeks\cms\assets\CmsAsset', 'images/icons/settings-big.png'],
+        'settings' => [
+            'priority' => 300,
+            'label'    => \Yii::t('skeeks/cms', 'Settings'),
+            "img"      => ['\skeeks\cms\assets\CmsAsset', 'images/icons/settings-big.png'],
 
-                'items' =>
+            'items' =>
+                [
                     [
-                        [
-                            "label" => \Yii::t('skeeks/cms', 'Sites'),
-                            "url"   => ["/cms/admin-cms-site"],
-                            "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/www.png'],
+                        "label" => \Yii::t('skeeks/cms', 'Sites'),
+                        "url"   => ["/cms/admin-cms-site"],
+                        "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/www.png'],
 
-                            'items' => [
+                        /*'items' => [
+                            [
+                                "label" => \Yii::t('skeeks/cms', 'Sites'),
+                                "url"   => ["/cms/admin-cms-site"],
+                                "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/www.png'],
+                            ],
+                            [
+                                "label" => \Yii::t('skeeks/cms', 'Domains'),
+                                "url"   => ["/cms/admin-cms-site-domain"],
+                                "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/www.png'],
+                            ],
+                        ],*/
+                    ],
+
+
+                    [
+                        "label" => \Yii::t('skeeks/cms', "Languages"),
+                        "url"   => ["cms/admin-cms-lang"],
+                        "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/ru.png'],
+                    ],
+
+                    [
+                        "label" => \Yii::t('skeeks/cms', "Server file storage"),
+                        "url"   => ["cms/admin-storage/index"],
+                        "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/servers.png'],
+                    ],
+
+
+                    [
+                        "label" => \Yii::t('skeeks/cms', "Settings sections"),
+                        //"url"       => ["cms/admin-cms-tree-type"],
+                        "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/icon.tree.gif'],
+                        "items" =>
+                            [
                                 [
-                                    "label" => \Yii::t('skeeks/cms', 'Sites'),
-                                    "url"   => ["/cms/admin-cms-site"],
-                                    "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/www.png'],
+                                    "label" => \Yii::t('skeeks/cms', "Properties"),
+                                    "url"   => ["cms/admin-cms-tree-type-property"],
+                                    //"img"       => ['\skeeks\cms\assets\CmsAsset', 'images/icons/icon.tree.gif'],
                                 ],
+
                                 [
-                                    "label" => \Yii::t('skeeks/cms', 'Domains'),
-                                    "url"   => ["/cms/admin-cms-site-domain"],
-                                    "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/www.png'],
+                                    "label" => \Yii::t('skeeks/cms', "Options"),
+                                    "url"   => ["cms/admin-cms-tree-type-property-enum"],
+                                    //"img"       => ['\skeeks\cms\assets\CmsAsset', 'images/icons/icon.tree.gif'],
+                                ],
+
+                                [
+                                    "label" => \Yii::t('skeeks/cms', "Types"),
+                                    "url"   => ["cms/admin-cms-tree-type"],
+                                    "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/icon.tree.gif'],
                                 ],
                             ],
-                        ],
+                    ],
+
+                    [
+                        "label" => \Yii::t('skeeks/cms', "Content settings"),
+                        "url"   => ["cms/admin-cms-content-type"],
+                        "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/content.png'],
+
+                        'items' => \yii\helpers\ArrayHelper::merge([
+                            'contentSettings'     => [
+                                'url'   => ["/cms/admin-cms-content-property"],
+                                'label' => \Yii::t('skeeks/cms', "Properties"),
+                            ],
+                            'contentSettingsEnum' => [
+                                'url'   => ["/cms/admin-cms-content-property-enum"],
+                                'label' => \Yii::t('skeeks/cms', "Options"),
+                            ],
+                        ], contentEditMenu()),
+                    ],
 
 
-                        [
-                            "label" => \Yii::t('skeeks/cms', "Languages"),
-                            "url"   => ["cms/admin-cms-lang"],
-                            "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/ru.png'],
-                        ],
-
-                        [
-                            "label" => \Yii::t('skeeks/cms', "Server file storage"),
-                            "url"   => ["cms/admin-storage/index"],
-                            "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/servers.png'],
-                        ],
-
-
-                        [
-                            "label" => \Yii::t('skeeks/cms', "Settings sections"),
-                            //"url"       => ["cms/admin-cms-tree-type"],
-                            "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/icon.tree.gif'],
-                            "items" =>
-                                [
-                                    [
-                                        "label" => \Yii::t('skeeks/cms', "Properties"),
-                                        "url"   => ["cms/admin-cms-tree-type-property"],
-                                        //"img"       => ['\skeeks\cms\assets\CmsAsset', 'images/icons/icon.tree.gif'],
-                                    ],
-
-                                    [
-                                        "label" => \Yii::t('skeeks/cms', "Options"),
-                                        "url"   => ["cms/admin-cms-tree-type-property-enum"],
-                                        //"img"       => ['\skeeks\cms\assets\CmsAsset', 'images/icons/icon.tree.gif'],
-                                    ],
-
-                                    [
-                                        "label" => \Yii::t('skeeks/cms', "Types"),
-                                        "url"   => ["cms/admin-cms-tree-type"],
-                                        "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/icon.tree.gif'],
-                                    ],
-                                ],
-                        ],
-
-                        [
-                            "label" => \Yii::t('skeeks/cms', "Content settings"),
-                            "url"   => ["cms/admin-cms-content-type"],
-                            "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/content.png'],
-
-                            'items' => \yii\helpers\ArrayHelper::merge([
-                                'contentSettings'     => [
-                                    'url'   => ["/cms/admin-cms-content-property"],
-                                    'label' => \Yii::t('skeeks/cms', "Properties"),
-                                ],
-                                'contentSettingsEnum' => [
-                                    'url'   => ["/cms/admin-cms-content-property-enum"],
-                                    'label' => \Yii::t('skeeks/cms', "Options"),
-                                ],
-                            ], contentEditMenu()),
-                        ],
-
-
-                        [
-                            "label" => \Yii::t('skeeks/cms', "User settings"),
-                            "url"   => ["cms/admin-cms-user-universal-property"],
-                            "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/user.png'],
-                            "items" =>
+                    [
+                        "label" => \Yii::t('skeeks/cms', "User settings"),
+                        "url"   => ["cms/admin-cms-user-universal-property"],
+                        "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/user.png'],
+                        "items" =>
                             [
                                 [
                                     "label" => \Yii::t('skeeks/cms', "User properties"),
@@ -355,19 +354,19 @@ return
                                     "label" => \Yii::t('skeeks/cms', "Options"),
                                     "url"   => ["cms/admin-cms-user-universal-property-enum"],
                                     "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/settings-big.png'],
-                                ]
-                            ]
-                        ],
-
-
-                        [
-                            "label" => \Yii::t('skeeks/cms', "Module settings"),
-                            //"url"       => ["cms/admin-settings"],
-                            "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/settings-big.png'],
-                            'items' => componentsMenu(),
-                        ],
+                                ],
+                            ],
                     ],
-            ],
+
+
+                    [
+                        "label" => \Yii::t('skeeks/cms', "Module settings"),
+                        //"url"       => ["cms/admin-settings"],
+                        "img"   => ['\skeeks\cms\assets\CmsAsset', 'images/icons/settings-big.png'],
+                        'items' => componentsMenu(),
+                    ],
+                ],
+        ],
 
 
         'other' =>

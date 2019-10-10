@@ -111,10 +111,22 @@ class User
     {
         parent::init();
 
+        $this->on(self::EVENT_BEFORE_UPDATE, [$this, "_cmsCheckBeforeSave"]);
+
         $this->on(self::EVENT_AFTER_INSERT, [$this, "_cmsAfterSave"]);
         $this->on(self::EVENT_AFTER_UPDATE, [$this, "_cmsAfterSave"]);
 
         $this->on(self::EVENT_BEFORE_DELETE, [$this, "checkDataBeforeDelete"]);
+    }
+
+    public function _cmsCheckBeforeSave($e) {
+        if (!\Yii::$app->user && !\Yii::$app->user->identity) {
+            return true;
+        }
+
+        if ($this->active == "N" && $this->id == \Yii::$app->user->identity->id) {
+            throw new Exception(\Yii::t('skeeks/cms', 'Нельзя деактивировать себя'));
+        }
     }
 
     public function _cmsAfterSave($e)
@@ -131,9 +143,14 @@ class User
             foreach ((array)$this->_roleNames as $roleName) {
                 if ($role = \Yii::$app->authManager->getRole($roleName)) {
                     try {
+                        //todo: добавить проверку
                         \Yii::$app->authManager->assign($role, $this->id);
                     } catch (\Exception $e) {
+                        \Yii::error("Ошибка назначения роли: " . $e->getMessage(), self::class);
+                        //throw $e;
                     }
+                } else {
+                    \Yii::warning("Роль {$roleName} не зарегистрированна в системе", self::class);
                 }
             }
         }
@@ -198,7 +215,7 @@ class User
                 'skipOnEmpty' => false,
                 'extensions' => ['jpg', 'jpeg', 'gif', 'png'],
                 'maxFiles' => 1,
-                'maxSize' => 1024 * 1024 * 1,
+                'maxSize' => 1024 * 1024 * 5,
                 'minSize' => 1024,
             ],
 
@@ -643,10 +660,10 @@ class User
             $userName = \skeeks\cms\helpers\StringHelper::substr($this->email, 0, strpos() );
         }*/
 
-        $userLast = static::find()->orderBy("id DESC")->one();
+        $userLast = static::find()->orderBy("id DESC")->limit(1)->one();
         $this->username = "id" . ($userLast->id + 1);
 
-        if (static::find()->where(['username' => $this->username])->one()) {
+        if (static::find()->where(['username' => $this->username])->limit(1)->one()) {
             $this->username = $this->username . "_" . \skeeks\cms\helpers\StringHelper::substr(md5(time()), 0, 6);
         }
 
@@ -794,6 +811,18 @@ class User
         } else
         {
             return false;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getShortDisplayName()
+    {
+        if ($this->last_name || $this->first_name) {
+            return implode(" ", [$this->last_name, $this->first_name]);
+        } else {
+            return $this->displayName;
         }
     }
 }
