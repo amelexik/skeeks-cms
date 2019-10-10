@@ -39,6 +39,11 @@ class TreeMenuCmsWidget extends WidgetRenderable
     public $treePid = null;
 
     /**
+     * @var null
+     */
+    public $treeParentCode = null;
+
+    /**
      * Выбор только активных пунктов
      * @var string
      */

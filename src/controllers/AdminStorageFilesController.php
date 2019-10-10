@@ -11,43 +11,40 @@
 
 namespace skeeks\cms\controllers;
 
+use skeeks\cms\backend\BackendAction;
+use skeeks\cms\backend\controllers\BackendModelStandartController;
+use skeeks\cms\grid\DateTimeColumnData;
+use skeeks\cms\helpers\RequestResponse;
 use skeeks\cms\models\behaviors\HasDescriptionsBehavior;
+use skeeks\cms\models\CmsStorageFile;
 use skeeks\cms\models\Comment;
 use skeeks\cms\models\Publication;
-use skeeks\cms\models\searchs\Publication as PublicationSearch;
 use skeeks\cms\models\StorageFile;
 use skeeks\cms\modules\admin\actions\modelEditor\AdminOneModelEditAction;
-use skeeks\cms\modules\admin\controllers\AdminController;
-use skeeks\cms\modules\admin\controllers\AdminModelEditorController;
 use skeeks\cms\modules\admin\controllers\helpers\rules\HasModelBehaviors;
+use skeeks\cms\queryfilters\QueryFiltersEvent;
 use Yii;
-use skeeks\cms\models\User;
-use skeeks\cms\models\searchs\User as UserSearch;
-use yii\base\Exception;
-use yii\helpers\ArrayHelper;
-use yii\web\Response;
-use skeeks\cms\helpers\RequestResponse;
-use skeeks\cms\models\CmsStorageFile;
-use skeeks\cms\models\searchs\StorageFile as StorageFileSearch;
+use yii\base\ActionEvent;
+use yii\base\Event;
 use yii\db\ActiveRecord;
-use yii\helpers\Json;
-use yii\web\Controller;
-use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use yii\web\UploadedFile;
+use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
+use yii\helpers\UnsetArrayValue;
+use yii\web\Response;
 
 /**
  * Class AdminStorageFilesController
  * @package skeeks\cms\controllers
  */
-class AdminStorageFilesController extends AdminModelEditorController
+class AdminStorageFilesController extends BackendModelStandartController
 {
     public $enableCsrfValidation = false;
 
     public function init()
     {
         $this->name = "Управление файлами хранилища";
-        $this->modelClassName = StorageFile::className();
+        $this->modelClassName = StorageFile::class;
 
         parent::init();
     }
@@ -56,12 +53,12 @@ class AdminStorageFilesController extends AdminModelEditorController
     {
         return ArrayHelper::merge(parent::behaviors(), [
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class'   => VerbFilter::className(),
                 'actions' => [
-                    'upload' => ['post'],
-                    'remote-upload' => ['post'],
-                    'link-to-model' => ['post'],
-                    'link-to-models' => ['post'],
+                    'upload'         => ['post'],
+                    //'remote-upload'  => ['post'],
+                    /*'link-to-model'  => ['post'],
+                    'link-to-models' => ['post'],*/
                 ],
             ],
         ]);
@@ -72,29 +69,239 @@ class AdminStorageFilesController extends AdminModelEditorController
     {
         return ArrayHelper::merge(parent::actions(),
             [
+                'upload' => [
+                    'class' => BackendAction::class,
+                    'name' => "Загрузить файлы",
+                    'isVisible' => false,
+                    'priority' => 10,
+                    'callback' => [$this, 'actionUpload'],
+                ],
+
+                'index' => [
+                    'accessCallback' => function() {
+                        return (\Yii::$app->user->can("cms/admin-storage-files/index") || \Yii::$app->user->can("cms/admin-storage-files/index/own"));
+                    },
+                    'on beforeRender' => function(Event $event) {
+                        $event->content = \skeeks\cms\widgets\StorageFileManager::widget([
+    'clientOptions' =>
+        [
+            'completeUploadFile' => new \yii\web\JsExpression(<<<JS
+        function(data)
+        {
+            window.location.reload();
+        }
+JS
+            )
+        ],
+]) . "<br />";
+                    },
+                    'on init' => function ($e) {
+                        $action = $e->sender;
+                    },
+                    "filters" => [
+                        'visibleFilters' => [
+                            'q',
+                            //'id',
+                        ],
+                        'filtersModel'   => [
+
+                            'rules' => [
+                                ['q', 'safe'],
+                            ],
+
+                            'attributeDefines' => [
+                                'q',
+                            ],
+
+                            'fields' => [
+
+                                'q' => [
+                                    'label'          => 'Поиск',
+                                    'elementOptions' => [
+                                        'placeholder' => 'Поиск (название, описание)',
+                                    ],
+                                    'on apply'       => function (QueryFiltersEvent $e) {
+                                        /**
+                                         * @var $query ActiveQuery
+                                         */
+                                        $query = $e->dataProvider->query;
+
+                                        if ($e->field->value) {
+                                            $query->andWhere([
+                                                'or',
+                                                ['like', CmsStorageFile::tableName().'.name', $e->field->value],
+                                                ['like', CmsStorageFile::tableName().'.original_name', $e->field->value],
+                                                ['like', CmsStorageFile::tableName().'.name_to_save', $e->field->value],
+                                                ['like', CmsStorageFile::tableName().'.description_short', $e->field->value],
+                                                ['like', CmsStorageFile::tableName().'.description_full', $e->field->value],
+                                            ]);
+                                        }
+                                    },
+                                ],
+
+                            ],
+                        ],
+                    ],
+                    'grid'    => [
+                        'on init'        => function (Event $event) {
+
+                            if (!\Yii::$app->user->can("cms/admin-storage-files/index") && \Yii::$app->user->can("cms/admin-storage-files/index/own")) {
+                                $query = $event->sender->dataProvider->query;
+                                $query->andWhere(['created_by' => \Yii::$app->user->identity->id]);
+                            }
+                            /*/**
+                             * @var $query ActiveQuery
+                            $query = $event->sender->dataProvider->query;
+                            if ($this->content) {
+                                $query->andWhere(['content_id' => $this->content->id]);
+                            }*/
+                        },
+                        'defaultOrder'   => [
+                            'created_at' => SORT_DESC,
+                        ],
+                        'visibleColumns' => [
+                            'checkbox',
+                            'actions',
+                            //'id',
+
+                            'name',
+                            //'cluster_id',
+                            //'mime_type',
+                            //'extension',
+                            'size',
+                            'created_at',
+                            'created_by',
+
+                            /*'image_id',
+                            'name',
+
+                            'tree_id',
+                            'additionalSections',
+                            'published_at',
+                            'priority',
+
+                            'created_by',
+
+                            'active',
+
+                            'view',*/
+                        ],
+                        'columns'        => [
+
+
+                            'created_at' => [
+                                'class' => DateTimeColumnData::class,
+                            ],
+                            'updated_at' => [
+                                'class' => DateTimeColumnData::class,
+                            ],
+
+                            'cluster_id' => [
+                                'value'  => function (StorageFile $model) {
+                                    $model->cluster_id;
+                                    $cluster = \Yii::$app->storage->getCluster($model->cluster_id);
+                                    return $cluster->name;
+                                },
+                                'format' => 'raw',
+                            ],
+
+                            'cluster_id' => [
+                                'value'  => function (StorageFile $model) {
+                                    $model->cluster_id;
+                                    $cluster = \Yii::$app->storage->getCluster($model->cluster_id);
+                                    return $cluster->name;
+                                },
+                                'format' => 'raw',
+                            ],
+
+
+                            'name' => [
+                                'value'  => function (StorageFile $model) {
+                                    $result = [];
+
+                                    if ($model->name) {
+                                        $result[] = $model->name;
+                                    }
+                                    if ($model->original_name) {
+                                        $result[] = $model->original_name;
+                                    }
+
+                                    $result[] = Html::tag('label', $model->extension, [
+                                        'title' => $model->extension,
+                                        'class' => "u-label u-label-default g-rounded-20 g-mr-5 ",
+                                        'style' => "font-size: 11px;",
+                                    ]) . Html::tag('label', $model->mime_type, [
+                                        'title' => $model->mime_type,
+                                        'class' => "u-label u-label-default g-rounded-20 g-mr-5 ",
+                                        'style' => "font-size: 11px;",
+                                    ]);
+
+                                    $info = implode("<br />", $result);
+
+                                    if ($model->isImage() && $model->size < 1024 * 1024 * 4) {
+
+                                        $smallImage = \Yii::$app->imaging->getImagingUrl($model->src,
+                                            new \skeeks\cms\components\imaging\filters\Thumbnail());
+                                        return "<div class='row no-gutters sx-trigger-action' style='cursor: pointer;'>
+                                                <div class='' style='width: 50px;'>
+                                                <a href='".$model->src."' style='text-decoration: none; border-bottom: 0;' class='sx-fancybox' target='_blank' data-pjax='0' title='".\Yii::t('skeeks/cms', 'Increase')."'>
+                                                    <img src='".$smallImage."' style='max-width: 50px; max-height: 50px; border-radius: 5px;' />
+                                                </a></div>
+                                                <div style='margin-left: 5px;'>" . $info . "</div></div>";
+
+                                            ;
+                                    }
+
+                                    return "<div class='row no-gutters sx-trigger-action' style='cursor: pointer;'>
+                                                <div class='' style='width: 50px;'><a href='".$model->src."' style='text-decoration: none; border-bottom: 0;' class='sx-fancybox' target='_blank' data-pjax='0' title='".\Yii::t('skeeks/cms', 'Increase')."'>" . \yii\helpers\Html::tag('span', $model->extension,
+                                        ['class' => 'label label-primary u-label u-label-primary', 'style' => 'font-size: 18px;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    line-height: 38px;'])
+                                        . "</a></div>
+                                                <div style='margin-left: 5px;'>" . $info . "</div></div>";
+                                },
+                                'format' => 'raw',
+                            ],
+
+
+                            'size' => [
+                                'value'  => function (StorageFile $model) {
+                                    return \Yii::$app->formatter->asShortSize($model->size);
+                                },
+                                'format' => 'raw',
+                            ],
+
+
+                        ],
+                    ],
+                ],
+
+
+
                 'delete-tmp-dir' =>
                     [
-                        "class" => AdminOneModelEditAction::className(),
-                        "name" => "Удалить временные файлы",
-                        "icon" => "glyphicon glyphicon-folder-open",
-                        "method" => "post",
-                        "request" => "ajax",
+                        'priority' => 200,
+                        "class"    => AdminOneModelEditAction::className(),
+                        "name"     => "Удалить временные файлы",
+                        "icon"     => "far fa-minus-square",
+                        "method"   => "post",
+                        "request"  => "ajax",
                         "callback" => [$this, 'actionDeleteTmpDir'],
                     ],
 
                 'download' =>
                     [
-                        "class" => AdminOneModelEditAction::className(),
-                        "name" => "Скачать",
-                        "icon" => "glyphicon glyphicon-circle-arrow-down",
-                        "method" => "post",
+                        'priority' => 150,
+                        "class"    => AdminOneModelEditAction::className(),
+                        "name"     => "Скачать",
+                        "icon"     => "fas fa-download",
+                        "method"   => "post",
                         "callback" => [$this, 'actionDownload'],
                     ],
 
-                'create' =>
-                    [
-                        'isVisible' => false
-                    ]
+                'create' => new UnsetArrayValue(),
             ]);
     }
 
@@ -110,8 +317,8 @@ class AdminStorageFilesController extends AdminModelEditorController
         $file->src;
 
 
-        header('Content-type: ' . $file->mime_type);
-        header('Content-Disposition: attachment; filename="' . $file->cluster_file . '"');
+        header('Content-type: '.$file->mime_type);
+        header('Content-Disposition: attachment; filename="'.$file->cluster_file.'"');
         echo file_get_contents($file->cluster->getAbsoluteUrl($file->cluster_file));
         die;
 
@@ -141,7 +348,7 @@ class AdminStorageFilesController extends AdminModelEditorController
     {
         $response =
             [
-                'success' => false
+                'success' => false,
             ];
 
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
@@ -157,7 +364,7 @@ class AdminStorageFilesController extends AdminModelEditorController
         $originalName = $uploader->getFileName();
 
         $uploader->newFileName = $file->getBaseName();
-        $result = $uploader->handleUpload($dir->getPath() . DIRECTORY_SEPARATOR);
+        $result = $uploader->handleUpload($dir->getPath().DIRECTORY_SEPARATOR);
 
         if (!$result) {
             $response["msg"] = $uploader->getErrorMsg();
@@ -167,8 +374,8 @@ class AdminStorageFilesController extends AdminModelEditorController
 
             $storageFile = Yii::$app->storage->upload($file, array_merge(
                 [
-                    "name" => "",
-                    "original_name" => $originalName
+                    "name"          => "",
+                    "original_name" => $originalName,
                 ]
             ));
 
@@ -187,11 +394,11 @@ class AdminStorageFilesController extends AdminModelEditorController
         return $response;
     }
 
-    public function actionRemoteUpload()
+    public function _actionRemoteUpload()
     {
         $response =
             [
-                'success' => false
+                'success' => false,
             ];
 
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
@@ -204,8 +411,8 @@ class AdminStorageFilesController extends AdminModelEditorController
         if (\Yii::$app->request->post('link')) {
             $storageFile = Yii::$app->storage->upload(\Yii::$app->request->post('link'), array_merge(
                 [
-                    "name" => isset($model->name) ? $model->name : "",
-                    "original_name" => basename($post['link'])
+                    "name"          => isset($model->name) ? $model->name : "",
+                    "original_name" => basename($post['link']),
                 ]
             ));
 
@@ -228,7 +435,7 @@ class AdminStorageFilesController extends AdminModelEditorController
      * @see skeeks\cms\widgets\formInputs\StorageImage
      * @return RequestResponse
      */
-    public function actionLinkToModel()
+    public function _actionLinkToModel()
     {
         $rr = new RequestResponse();
 
@@ -257,7 +464,7 @@ class AdminStorageFilesController extends AdminModelEditorController
                 }
 
                 if (!$model->hasAttribute(\Yii::$app->request->post('modelAttribute'))) {
-                    throw new \yii\base\Exception("У модели не найден атрибут привязки файла: " . \Yii::$app->request->post('modelAttribute'));
+                    throw new \yii\base\Exception("У модели не найден атрибут привязки файла: ".\Yii::$app->request->post('modelAttribute'));
                 }
 
                 //Удаление старого файла
@@ -296,7 +503,7 @@ class AdminStorageFilesController extends AdminModelEditorController
      * @see skeeks\cms\widgets\formInputs\StorageImage
      * @return RequestResponse
      */
-    public function actionLinkToModels()
+    public function _actionLinkToModels()
     {
         $rr = new RequestResponse();
 
@@ -325,7 +532,7 @@ class AdminStorageFilesController extends AdminModelEditorController
                 }
 
                 if (!$model->hasProperty(\Yii::$app->request->post('modelRelation'))) {
-                    throw new \yii\base\Exception("У модели не найден атрибут привязки к файлам modelRelation: " . \Yii::$app->request->post('modelRelation'));
+                    throw new \yii\base\Exception("У модели не найден атрибут привязки к файлам modelRelation: ".\Yii::$app->request->post('modelRelation'));
                 }
 
                 try {

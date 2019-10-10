@@ -29,30 +29,29 @@ function contentMenu()
 
             if ($contents) {
                 foreach ($contents as $content) {
-                    $itemData['items'][] =
-                        [
-                            'label'          => $content->name,
-                            'url'            => ["cms/admin-cms-content-element", "content_id" => $content->id],
-                            "activeCallback" => function ($adminMenuItem) use ($content) {
-                                return (bool)($content->id == \Yii::$app->request->get("content_id") && \Yii::$app->controller->uniqueId == 'cms/admin-cms-content-element');
-                            },
+                    $itemData['items'][] = [
+                        'label'          => $content->name,
+                        'url'            => ["cms/admin-cms-content-element", "content_id" => $content->id],
+                        "activeCallback" => function ($adminMenuItem) use ($content) {
+                            return (bool)($content->id == \Yii::$app->request->get("content_id") && \Yii::$app->controller->uniqueId == 'cms/admin-cms-content-element');
+                        },
 
-                            "accessCallback" => function ($adminMenuItem) use ($content) {
-                                $controller = \Yii::$app->createController('cms/admin-cms-content-element')[0];
-                                $controller->setContent($content);
+                        "accessCallback" => function ($adminMenuItem) use ($content) {
+                            $controller = \Yii::$app->createController('cms/admin-cms-content-element')[0];
+                            $controller->setContent($content);
 
-                                foreach ([$controller->permissionName] as $permissionName) {
-                                    if ($permission = \Yii::$app->authManager->getPermission($permissionName)) {
-                                        if (!\Yii::$app->user->can($permission->name)) {
-                                            return false;
-                                        }
+                            foreach ([$controller->permissionName] as $permissionName) {
+                                if ($permission = \Yii::$app->authManager->getPermission($permissionName)) {
+                                    if (!\Yii::$app->user->can($permission->name)) {
+                                        return false;
                                     }
                                 }
+                            }
 
-                                return true;
-                            },
+                            return true;
+                        },
 
-                        ];
+                    ];
                 }
             }
 

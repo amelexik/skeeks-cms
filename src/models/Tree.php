@@ -66,6 +66,7 @@ use yii\helpers\Url;
  * @property integer $redirect_code
  * @property string $name_hidden
  * @property string $view_file
+ * @property string $seo_h1
  *
  * ***
  *

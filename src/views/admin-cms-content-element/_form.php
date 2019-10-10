@@ -60,6 +60,36 @@ if ($model->isNewRecord) {
     'enableAjaxValidation'   => false,
     'enableClientValidation' => false,
 ]); ?>
+
+
+<? if ($is_saved && @$is_create) : ?>
+    <?php $this->registerJs(<<<JS
+    sx.Window.openerWidgetTriggerEvent('model-create', {
+        'submitBtn' : '{$submitBtn}'
+    });
+JS
+    ); ?>
+
+<? elseif ($is_saved) : ?>
+    <?php $this->registerJs(<<<JS
+sx.Window.openerWidgetTriggerEvent('model-update', {
+        'submitBtn' : '{$submitBtn}'
+    });
+JS
+    ); ?>
+<? endif; ?>
+
+<? if (@$redirect) : ?>
+    <?php $this->registerJs(<<<JS
+window.location.href = '{$redirect}';
+console.log('window.location.href');
+console.log('{$redirect}');
+JS
+    ); ?>
+<? endif; ?>
+
+
+
 <?php $this->registerJs(<<<JS
 
 (function(sx, $, _)
@@ -182,7 +212,7 @@ if (\skeeks\cms\models\CmsContent::find()->where(['in', 'id', Yii::$app->mention
         <?= $form->fieldSet(\Yii::t('skeeks/cms', 'Access')); ?>
         <?= \skeeks\cms\rbac\widgets\adminPermissionForRoles\AdminPermissionForRolesWidget::widget([
             'permissionName'        => $model->permissionName,
-            'permissionDescription' => 'Доступ к этому элементу: ' . $model->name,
+            'permissionDescription' => 'Доступ к этому элементу: '.$model->name,
             'label'                 => 'Доступ к этому элементу',
         ]); ?>
         <?= $form->fieldSetEnd() ?>
@@ -213,7 +243,7 @@ if (\skeeks\cms\models\CmsContent::find()->where(['in', 'id', Yii::$app->mention
             : ?>
             <?= \skeeks\cms\modules\admin\widgets\RelatedModelsGrid::widget([
                 'label'       => $childContent->name,
-                'namespace'   => md5($model->className() . $childContent->id),
+                'namespace'   => md5($model->className().$childContent->id),
                 'parentModel' => $model,
                 'relation'    => [
                     'content_id'                => $childContent->id,
@@ -242,7 +272,6 @@ if (\skeeks\cms\models\CmsContent::find()->where(['in', 'id', Yii::$app->mention
         <?= $form->fieldSetEnd() ?>
     <?php endforeach; ?>
 <?php endif; ?>
-
 
 
 <?= $form->buttonsStandart($model); ?>

@@ -7,6 +7,21 @@
  */
 /* @var $this yii\web\View */
 
+$this->registerJs(<<<JS
+
+$("body").on("dblclick", ".sx-tree-node", function() {
+    $(".sx-first-action", $(this)).click();
+    return false;
+});
+
+$("body").on("click", ".sx-first-action-trigger", function() {
+    $(".sx-first-action", $(this).closest('.sx-tree-node')).click();
+    return false;
+});
+
+JS
+);
+
 $this->registerCss(<<<CSS
 
 .sx-tree ul li.sx-tree-node .row .sx-controll-node
@@ -65,11 +80,11 @@ CSS
         "viewNodeContentFile" => '@skeeks/cms/views/admin-tree/_tree-node',
 
         'pjaxClass' => \skeeks\cms\modules\admin\widgets\Pjax::class,
-        'pjaxOptions' =>
+        /*'pjaxOptions' =>
             [
                 'blockPjaxContainer' => false,
                 'blockContainer' => '.sx-panel',
-            ]
+            ]*/
     ]); ?>
     <?
     \yii\jui\Sortable::widget();
@@ -131,7 +146,7 @@ CSS
                                 }
                             );
 
-                            new sx.classes.AjaxHandlerNoLoader(ajax); //отключение глобального загрузчика
+                            //new sx.classes.AjaxHandlerNoLoader(ajax); //отключение глобального загрузчика
                             new sx.classes.AjaxHandlerNotify(ajax, {
                                 'error': "Изменения не сохранились",
                                 'success': "Изменения сохранены",
@@ -172,7 +187,7 @@ CSS
                                         }
                                 );
 
-                                new sx.classes.AjaxHandlerNoLoader(ajax); //отключение глобального загрузчика
+                                //new sx.classes.AjaxHandlerNoLoader(ajax); //отключение глобального загрузчика
 
                                 new sx.classes.AjaxHandlerNotify(ajax, {
                                     'error': "Не удалось добавить новый раздел",

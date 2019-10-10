@@ -13,6 +13,7 @@ namespace skeeks\cms\components\storage;
 
 use skeeks\cms\models\StorageFile;
 use Yii;
+use yii\base\Exception;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
@@ -94,7 +95,7 @@ class Storage extends Component
                     curl_close($curl_session);
 
                     if (!$file_content) {
-                        throw new Exception("Не удалось скачать файл");
+                        throw new Exception("Не удалось скачать файл: {$file}");
                     }
 
                     $extension = pathinfo($file, PATHINFO_EXTENSION);

@@ -13,37 +13,8 @@ use skeeks\cms\modules\admin\widgets\form\ActiveFormUseTab as ActiveForm;
 /* @var $relatedModel \skeeks\cms\relatedProperties\models\RelatedPropertiesModel */
 $controller = $this->context;
 $action = $controller->action;
-
+\skeeks\cms\themes\unify\admin\assets\UnifyAdminIframeAsset::register($this);
 ?>
-
-    <div class="sx-box sx-p-10 sx-bg-primary" style="margin-bottom: 10px;">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="pull-left">
-                    <?php if ($model->parents) : ?>
-                        <?php foreach ($model->parents as $tree) : ?>
-                            <a href="<?= $tree->url ?>" target="_blank"
-                               title="<?= \Yii::t('skeeks/cms', 'Watch to site (opens new window)') ?>">
-                                <?= $tree->name ?>
-                                <?php if ($tree->level == 0) : ?>
-                                    [<?= $tree->site->name; ?>]
-                                <?php endif; ?>
-                            </a>
-                            /
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                    <a href="<?= $model->url ?>" target="_blank"
-                       title="<?= Yii::t('skeeks/cms', 'Watch to site (opens new window)') ?>">
-                        <?= $model->name; ?>
-                    </a>
-                </div>
-                <div class="pull-right">
-
-                </div>
-            </div>
-        </div>
-    </div>
-
 <?php $form = $action->beginActiveForm([
     'id' => 'sx-dynamic-form',
     'enableAjaxValidation' => false,
@@ -83,6 +54,34 @@ $action = $controller->action;
 
 JS
 ); ?>
+
+
+<? if ($is_saved && @$is_create) : ?>
+    <?php $this->registerJs(<<<JS
+    sx.Window.openerWidgetTriggerEvent('model-create', {
+        'submitBtn' : '{$submitBtn}'
+    });
+JS
+    ); ?>
+
+<? elseif ($is_saved) : ?>
+    <?php $this->registerJs(<<<JS
+sx.Window.openerWidgetTriggerEvent('model-update', {
+        'submitBtn' : '{$submitBtn}'
+    });
+JS
+    ); ?>
+<? endif; ?>
+
+<? if (@$redirect) : ?>
+    <?php $this->registerJs(<<<JS
+window.location.href = '{$redirect}';
+console.log('window.location.href');
+console.log('{$redirect}');
+JS
+    ); ?>
+<? endif; ?>
+
 <?php echo $form->errorSummary([$model, $model->relatedPropertiesModel]); ?>
 
 
@@ -155,12 +154,15 @@ JS
             </div>
             <div class="col-md-7">
                 <?= $form->field($model, 'redirect_tree_id')->widget(
+                    \skeeks\cms\backend\widgets\SelectModelDialogTreeWidget::class
+                ) ?>
+                <?/*= $form->field($model, 'redirect_tree_id')->widget(
                     \skeeks\cms\widgets\formInputs\selectTree\SelectTree::className(),
                     [
                         "attributeSingle" => "redirect_tree_id",
                         "mode" => \skeeks\cms\widgets\formInputs\selectTree\SelectTree::MOD_SINGLE
                     ]
-                ) ?>
+                ) */?>
             </div>
         </div>
 
@@ -258,6 +260,7 @@ JS
 <?= $form->fieldSetEnd() ?>
 
 <?= $form->fieldSet(\Yii::t('skeeks/cms', 'SEO')); ?>
+<?= $form->field($model, 'seo_h1'); ?>
 <?= $form->field($model, 'meta_title')->textarea(); ?>
 <?= $form->field($model, 'meta_description')->textarea(); ?>
 <?= $form->field($model, 'meta_keywords')->textarea(); ?>

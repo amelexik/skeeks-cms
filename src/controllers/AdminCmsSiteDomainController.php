@@ -9,8 +9,10 @@
 namespace skeeks\cms\controllers;
 
 use skeeks\cms\backend\controllers\BackendModelStandartController;
+use skeeks\cms\grid\BooleanColumn;
 use skeeks\cms\models\CmsSite;
 use skeeks\cms\models\CmsSiteDomain;
+use skeeks\yii2\form\fields\BoolField;
 use skeeks\yii2\form\fields\HiddenField;
 use skeeks\yii2\form\fields\SelectField;
 use yii\helpers\ArrayHelper;
@@ -25,6 +27,9 @@ class AdminCmsSiteDomainController extends BackendModelStandartController
         $this->name = \Yii::t('skeeks/cms', "Managing domains");
         $this->modelShowAttribute = "domain";
         $this->modelClassName = CmsSiteDomain::class;
+
+        $this->generateAccessActions = false;
+        $this->permissionName = 'cms/admin-cms-site';
 
         parent::init();
     }
@@ -50,7 +55,21 @@ class AdminCmsSiteDomainController extends BackendModelStandartController
                         'id',
                         'domain',
                         'cms_site_id',
+                        'is_main',
+                        'is_https',
                     ],
+                    'columns' => [
+                        'is_main' => [
+                            'class' => BooleanColumn::class,
+                            'trueValue' => 1,
+                            'falseValue' => 0,
+                        ],
+                        'is_https' => [
+                            'class' => BooleanColumn::class,
+                            'trueValue' => 1,
+                            'falseValue' => 0,
+                        ],
+                    ]
                 ],
             ],
             "create" => [
@@ -68,6 +87,7 @@ class AdminCmsSiteDomainController extends BackendModelStandartController
          * @var $model CmsSiteDomain
          */
         $model = $action->model;
+        $model->load(\Yii::$app->request->get());
 
         if ($code = \Yii::$app->request->get('cms_site_id'))
         {
@@ -86,7 +106,17 @@ class AdminCmsSiteDomainController extends BackendModelStandartController
         }
         $updateFields = [
             'domain',
-            'cms_site_id' => $field
+            'is_main' => [
+                'class' => BoolField::class,
+                'allowNull' => false,
+                'formElement' => BoolField::ELEMENT_CHECKBOX,
+            ],
+            'is_https' => [
+                'class' => BoolField::class,
+                'allowNull' => false,
+                'formElement' => BoolField::ELEMENT_CHECKBOX,
+            ],
+            'cms_site_id' => $field,
         ];
 
         return $updateFields;

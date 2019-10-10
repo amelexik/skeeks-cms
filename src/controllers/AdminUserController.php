@@ -17,6 +17,7 @@ use skeeks\cms\backend\controllers\BackendModelStandartController;
 use skeeks\cms\grid\BooleanColumn;
 use skeeks\cms\grid\DateTimeColumnData;
 use skeeks\cms\grid\ImageColumn2;
+use skeeks\cms\helpers\Image;
 use skeeks\cms\helpers\RequestResponse;
 use skeeks\cms\helpers\UrlHelper;
 use skeeks\cms\models\CmsUser;
@@ -24,10 +25,13 @@ use skeeks\cms\models\forms\PasswordChangeForm;
 use skeeks\cms\modules\admin\controllers\helpers\rules\HasModel;
 use skeeks\cms\queryfilters\filters\modes\FilterModeEq;
 use skeeks\cms\queryfilters\QueryFiltersEvent;
+use skeeks\cms\rbac\CmsManager;
+use skeeks\cms\rbac\RbacModule;
 use skeeks\cms\widgets\ActiveForm;
 use skeeks\yii2\form\fields\BoolField;
 use skeeks\yii2\form\fields\SelectField;
 use Yii;
+use yii\base\Event;
 use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -45,6 +49,9 @@ class AdminUserController extends BackendModelStandartController
         $this->modelShowAttribute = "displayName";
         $this->modelClassName = CmsUser::class;
 
+        $this->generateAccessActions = false;
+        /*$this->permissionName = 'cms/admin-cms-site';*/
+
         parent::init();
     }
 
@@ -53,6 +60,7 @@ class AdminUserController extends BackendModelStandartController
         $actions = ArrayHelper::merge(parent::actions(), [
 
             "index" => [
+                'accessCallback' => true,
                 "filters" => [
                     "visibleFilters" => [
                         'q',
@@ -163,6 +171,21 @@ class AdminUserController extends BackendModelStandartController
                 ],
 
                 'grid' => [
+
+                    'on init'        => function (Event $event) {
+
+                        if (!\Yii::$app->user->can(CmsManager::PERMISSION_ROOT_ACCESS)) {
+                            //TODO: доработать запрос
+                            $query = $event->sender->dataProvider->query;
+                            $query->innerJoin('auth_assignment', 'auth_assignment.user_id = cms_user.id');
+                            $query->andFilterWhere([
+                                "!=", 'auth_assignment.item_name', CmsManager::ROLE_ROOT,
+                            ]);
+                            $query->groupBy([CmsUser::tableName() . ".id"]);
+                        }
+
+                    },
+
                     'defaultOrder'   => [
                         'logged_at'  => SORT_DESC,
                         'created_at' => SORT_DESC,
@@ -177,30 +200,57 @@ class AdminUserController extends BackendModelStandartController
                         'checkbox',
                         'actions',
                         'id',
-                        'image_id',
-                        'displayName',
+                        //'image_id',
+                        //'displayName',
                         'created_at',
                         'logged_at',
-                        'role',
+                        //'role',
                         'active',
                     ],
                     'columns'        => [
-                        'displayName' => [
-                            'label'  => 'Данные пользователя',
+                        'id' => [
+                            //'label'  => 'Данные пользователя',
                             'format' => 'raw',
-                            'value'  => function ($cmsUser) {
-                                $data[] = $cmsUser->username;
-                                if ($cmsUser->displayName && $cmsUser->displayName != $cmsUser->username) {
-                                    $data[] = $cmsUser->displayName;
-                                }
+                            'value'  => function (CmsUser $cmsUser) {
+                                //$data[] = $cmsUser->asText;
+                                $data[] = Html::a($cmsUser->asText, "#");
                                 if ($cmsUser->phone) {
                                     $data[] = $cmsUser->phone;
                                 }
                                 if ($cmsUser->email) {
                                     $data[] = $cmsUser->email;
                                 }
+                                if ($cmsUser->phone) {
+                                    $data[] = $cmsUser->phone;
+                                }
 
-                                return implode("<br />", $data);
+                                $rolesData = [];
+                                if ($roles = \Yii::$app->authManager->getRolesByUser($cmsUser->id)) {
+                                    foreach ($roles as $role) {
+                                        $rolesData[] = Html::tag('label', $role->description, [
+                                            'title' => $role->name,
+                                            'class' => "u-label u-label-default g-rounded-20 g-mr-5 " . ($role->name == 'root' ? 'u-label-danger' : ''),
+                                            'style' => "font-size: 11px;",
+                                        ]);
+                                    }
+                                }
+
+                                if ($rolesData) {
+                                    $data[] = implode("", $rolesData);
+                                }
+
+
+                                $info = implode("<br />", $data);
+
+                                return "<div class='row no-gutters sx-trigger-action' style='cursor: pointer;'>
+                                                <div class='sx-trigger-action' style='width: 50px;'>
+                                                <a href='#' style='text-decoration: none; border-bottom: 0;'>
+                                                    <img src='". ($cmsUser->image ? $cmsUser->avatarSrc : Image::getCapSrc()) ."' style='max-width: 50px; max-height: 50px; border-radius: 5px;' />
+                                                </a>
+                                                </div>
+                                                <div style='margin-left: 5px;'>" . $info . "</div></div>";
+
+                                            ;
                             },
                         ],
                         'created_at'  => [
@@ -239,19 +289,58 @@ class AdminUserController extends BackendModelStandartController
 
             'create' => [
                 "callback" => [$this, 'create'],
+                "accessCallback" => function() {
+                    return \Yii::$app->user->can("cms/admin-user/create");
+                },
             ],
 
             'update' => [
                 "callback" => [$this, 'update'],
+                "accessCallback" => function() {
+                    if (!$this->_checkIsRoot($this->model)) {
+                        return false;
+                    }
+
+                    return \Yii::$app->user->can("cms/admin-user/update", ["model" => $this->model]);
+                },
+            ],
+
+            'delete' => [
+                "accessCallback" => function() {
+                    if (!$this->_checkIsRoot($this->model)) {
+                        return false;
+                    }
+                    return \Yii::$app->user->can("cms/admin-user/delete", ["model" => $this->model]);
+                },
+
             ],
 
 
             "activate-multi" => [
                 'class' => BackendModelMultiActivateAction::class,
+                "eachAccessCallback" => function($model) {
+                    return \Yii::$app->user->can("cms/admin-user/update-advanced", ['model' => $model]);
+                },
+                "accessCallback" => function() {
+                    return \Yii::$app->user->can("cms/admin-user/update-advanced");
+                },
             ],
 
             "deactivate-multi" => [
                 'class' => BackendModelMultiDeactivateAction::class,
+                "eachAccessCallback" => function($model) {
+                    return \Yii::$app->user->can("cms/admin-user/update-advanced", ['model' => $model]);
+                },
+                "accessCallback" => function() {
+
+                    return \Yii::$app->user->can("cms/admin-user/update-advanced");
+                },
+            ],
+
+            "delete-multi" => [
+                "eachAccessCallback" => function($model) {
+                    return \Yii::$app->user->can("cms/admin-user/delete", ['model' => $model]);
+                },
             ],
         ]);
 
@@ -259,6 +348,28 @@ class AdminUserController extends BackendModelStandartController
         return $actions;
     }
 
+
+    /**
+     * Проверка можно ли редактировать рута
+     *
+     * @param $model
+     * @return bool
+     */
+    protected function _checkIsRoot($model) {
+        if (!$model) {
+            return false;
+        }
+        if (!$model->roles) {
+            return false;
+        }
+        if (in_array(CmsManager::ROLE_ROOT, array_keys($model->roles))) {
+            if (!\Yii::$app->user->can(CmsManager::PERMISSION_ROOT_ACCESS)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     public function create($adminAction)
     {

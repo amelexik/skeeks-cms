@@ -186,7 +186,7 @@ abstract class Component extends Model implements ConfigFormInterface
     {
         $this->_callAttributes = $this->attributes;
 
-        \Yii::beginProfile("Init: ".static::class);
+        //\Yii::beginProfile("Init: ".static::class);
 
         if (!\Yii::$app instanceof Application) {
             if ($this->cmsSite === null && isset(\Yii::$app->currentSite) && \Yii::$app->currentSite->site) {
@@ -202,7 +202,7 @@ abstract class Component extends Model implements ConfigFormInterface
 
         $this->trigger(self::EVENT_INIT);
 
-        \Yii::endProfile("Init: ".static::class);
+        //\Yii::endProfile("Init: ".static::class);
     }
 
     /**
@@ -532,7 +532,22 @@ abstract class Component extends Model implements ConfigFormInterface
             }
         }
 
-        $modelSettings->value = $value;
+        if ($value && $attributeNames) {
+            foreach ($value as $key => $val)
+            {
+                if (!in_array($key, $attributeNames)) {
+                    unset($value[$key]);
+                }
+            }
+
+            $modelSettings->value = ArrayHelper::merge((array) $modelSettings->value, (array) $value);
+
+        } else {
+            $modelSettings->value = (array) $value;
+        }
+
+
+
         $result = $modelSettings->save();
 
         $this->trigger(self::EVENT_AFTER_UPDATE, new AfterSaveEvent([

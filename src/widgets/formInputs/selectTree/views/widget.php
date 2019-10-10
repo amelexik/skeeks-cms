@@ -37,7 +37,9 @@ use \skeeks\cms\widgets\formInputs\selectTree\SelectTree;
         </div>
     </div>
 
-<?php $this->registerJs(<<<JS
+<?php
+\skeeks\cms\themes\unify\admin\assets\UnifyAdminIframeAsset::register($this);
+$this->registerJs(<<<JS
 
 (function(sx, $, _)
 {
@@ -50,9 +52,11 @@ use \skeeks\cms\widgets\formInputs\selectTree\SelectTree;
 
             var self = this;
 
+            console.log(this.get('idSmartFrame'));
+            
             this.Iframe = new sx.classes.Iframe(this.get('idSmartFrame'), {
                 'autoHeight'        : true,
-                'heightSelector'    : '.sx-panel-content'
+                'heightSelector'    : 'main'
             });
 
             this.Iframe.onSxReady(function()

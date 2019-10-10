@@ -41,6 +41,7 @@
             var self = this;
 
             this.jForm = $("#" + this.id);
+            this.beforeSubmitProcess = false;
 
             this.AjaxQuery = sx.ajax.preparePostQuery(this.jForm.attr('action'));
 
@@ -74,6 +75,11 @@
             });
 
             this.AjaxQueryHandler.on('error', function (e, data) {
+
+                if (data.data && data.data.validation) {
+                    self.jForm.yiiActiveForm('updateMessages', data.data.validation, true);
+                }
+
                 self.trigger('error', {
                     'message': data.message
                 });
@@ -87,10 +93,12 @@
 
             this.on('start', function () {
                 //console.log('start');
+                self.beforeSubmitProcess = true;
                 self.Blocker.block();
             });
 
             this.on('stop', function () {
+                self.beforeSubmitProcess = false;
                 self.Blocker.unblock();
                 self.InProgress = false;
                 self.IsSubmitProcess = false;
@@ -110,6 +118,11 @@
 
             this.jForm.on('afterValidate', function (event, messages, errorAttributes) {
 
+                if (self.beforeSubmitProcess === false) {
+                    console.log('Это просто валидация, форму еще не отправляли');
+                    return false;
+                }
+
                 if (self.InProgress === true) {
                     console.log('Еще идет предыдущая отправка!');
                     return false;
@@ -118,6 +131,7 @@
                 //console.log('afterValidate');
 
                 self.trigger('afterValidate', {
+                    'activeFormAjaxSubmit': self,
                     'messages': messages,
                     'errorAttributes': errorAttributes,
                     'event': event,
@@ -126,7 +140,7 @@
                 if (_.size(errorAttributes) > 0) {
 
                     self.trigger('error', {
-                        'message': 'Проверьте заполненные поля в форме'
+                        'message': 'Проверьте заполненные поля в форме',
                     });
                     //sx.notify.error('Проверьте заполненные поля в форме');
                     self.trigger('stop');

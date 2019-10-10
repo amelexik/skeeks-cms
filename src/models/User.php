@@ -73,6 +73,7 @@ use yii\web\IdentityInterface;
  * @property []   $roleNames
  *
  * @property string $displayName
+ * @property string $shortDisplayName
  * @property string $isOnline Пользователь онлайн?
  *
  * @property CmsContentElement2cmsUser[] $cmsContentElement2cmsUsers

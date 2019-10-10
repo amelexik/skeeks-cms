@@ -12,6 +12,7 @@
 namespace skeeks\cms\controllers;
 
 use skeeks\cms\backend\actions\BackendModelUpdateAction;
+use skeeks\cms\backend\BackendAction;
 use skeeks\cms\helpers\RequestResponse;
 use skeeks\cms\models\CmsSite;
 use skeeks\cms\models\CmsTree;
@@ -28,6 +29,7 @@ use Yii;
 use yii\base\DynamicModel;
 use yii\base\Event;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
 use yii\helpers\Url;
 
 /**
@@ -44,6 +46,14 @@ class AdminTreeController extends AdminModelEditorController
     {
         $this->name = "Дерево страниц";
         $this->modelShowAttribute = "name";
+        $this->modelHeader = function () {
+            $model = $this->model;
+            return Html::tag('h1', $model->fullName . Html::a('<i class="fas fa-external-link-alt"></i>', $model->url, [
+                'target' => "_blank",
+                'class' => "g-ml-20",
+                'title' => \Yii::t('skeeks/cms', 'Watch to site (opens new window)'),
+            ]));
+        };
         $this->modelClassName = Tree::className();
 
         parent::init();
@@ -56,6 +66,7 @@ class AdminTreeController extends AdminModelEditorController
                 'class'    => AdminAction::className(),
                 'name'     => \Yii::t('skeeks/cms', 'Tree'),
                 'callback' => [$this, 'indexAction'],
+                'accessCallback' => true,
             ],
 
             'list' => [
@@ -69,6 +80,20 @@ class AdminTreeController extends AdminModelEditorController
                 'visible' => false,
             ],
 
+            'new-children' => [
+                'class' => BackendAction::class,
+                'isVisible' => false,
+                'name' => "Создать подраздел",
+                'callback' => [$this, 'actionNewChildren'],
+            ],
+
+            'resort' => [
+                'class' => BackendAction::class,
+                'isVisible' => false,
+                'name' => "Сортировать подразделы",
+                'callback' => [$this, 'actionResort'],
+            ],
+
             "update" => [
                 'class'    => BackendModelUpdateAction::className(),
                 "callback" => [$this, 'update'],
@@ -78,7 +103,7 @@ class AdminTreeController extends AdminModelEditorController
                 'class'          => BackendModelUpdateAction::class,
                 "name"           => \Yii::t('skeeks/cms', 'Move'),
                 "icon"           => "fas fa-expand-arrows-alt",
-                "beforeContent"     => "Механизм перемещения раздела. Укажите новый родительский раздел. <p><b>Внимание!</b> перемещение раздела, повлияет на изменение адресов всех дочерних разделов.</p>",
+                "beforeContent"  => "Механизм перемещения раздела. Укажите новый родительский раздел. <p><b>Внимание!</b> перемещение раздела, повлияет на изменение адресов всех дочерних разделов.</p>",
                 "successMessage" => "Раздел успешно перемещен",
 
                 'on initFormModels' => function (Event $e) {
@@ -156,19 +181,19 @@ class AdminTreeController extends AdminModelEditorController
                     if (!$model->isRoot()) {
                         return [
                             'dm.pid' => [
-                                'class'       => WidgetField::class,
-                                'widgetClass' => SelectTreeInputWidget::class,
+                                'class'        => WidgetField::class,
+                                'widgetClass'  => SelectTreeInputWidget::class,
                                 'widgetConfig' => [
-                                    'isAllowNodeSelectCallback' => function($tree) use ($model, $childrents) {
+                                    'isAllowNodeSelectCallback' => function ($tree) use ($model, $childrents) {
                                         if (in_array($tree->id, $childrents)) {
                                             return false;
                                         }
 
                                         return true;
-                                    }
+                                    },
                                 ],
                                 //'widgetClass' => SelectModelDialogTreeWidget::class,
-                                'label'       => ['skeeks/cms', 'Новый родительский раздел'],
+                                'label'        => ['skeeks/cms', 'Новый родительский раздел'],
                             ],
                         ];
                     }
@@ -187,6 +212,9 @@ class AdminTreeController extends AdminModelEditorController
 
     public function update($adminAction)
     {
+        $is_saved = false;
+        $redirect = "";
+
         /**
          * @var $model CmsTree
          */
@@ -220,11 +248,11 @@ class AdminTreeController extends AdminModelEditorController
                 if ($model->save() && $relatedModel->save()) {
                     \Yii::$app->getSession()->setFlash('success', \Yii::t('skeeks/cms', 'Saved'));
 
+                    $is_saved = true;
+
                     if (\Yii::$app->request->post('submit-btn') == 'apply') {
                     } else {
-                        return $this->redirect(
-                            $this->url
-                        );
+                        $redirect = $this->url;
                     }
 
                     $model->refresh();
@@ -237,6 +265,10 @@ class AdminTreeController extends AdminModelEditorController
         return $this->render('_form', [
             'model'        => $model,
             'relatedModel' => $relatedModel,
+
+            'is_saved' => $is_saved,
+            'submitBtn' => \Yii::$app->request->post('submit-btn'),
+            'redirect' => $redirect,
         ]);
     }
 
